@@ -33,27 +33,29 @@ class Trip:
 
 class StopTime:
 	possibleIds = ["backup_id"]
-	def __init__(self, initial_data,dao):
+	def __init__(self, initial_data,dao):		
 		for key in initial_data:
 			datum = initial_data[key]
 			setattr(self,key,datum)
 			if (key in self.possibleIds):
 				self.myId = datum
-		
+		self.stop_id = str(self.stop_id)
 		self.stop=dao.stops.get(self.stop_id)
+		i = self.stop_id
+		i2 = 4148390
+		if(i!=i2):
+			print(False, ": type of stop_id = ", type(self.stop_id))
 		if (self.stop==None):
-			print("could not find stop " + self.stop_id)
+			print("could not find stop " + str(self.stop_id))
 			raise Exception("stop_times must have stop")
-		# print("StopTime: ", self.myId, " stopId ", self.stop_id, "stop stopId ", self.stop.myId)
-
 		self.trip=dao.trips.get(self.trip_id)
 		if (self.trip==None):
 			print("could not find trip " + self.trip_id)
 			raise Exception("stop_times must have trip")
 		self.trip.stop_times[self.stop_sequence]=self
-		print("\n\n")
-		print("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
-		printShortHandTripInfo(self.trip)
+		# print("\n\n")
+		# print("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
+		# printShortHandTripInfo(self.trip)
 		self.pickup_booking_rule=dao.bookingRules.get(self.pickup_booking_rule_id)
 		self.pickup_booking_rule.trips[self.myId]=self
 		self.drop_off_booking_rule=dao.bookingRules.get(self.drop_off_booking_rule_id)
@@ -68,8 +70,30 @@ class Stop:
 		self.substops = dict()
 		for key in initial_data:
 			if (key in self.possibleIds):
-				self.myId = initial_data[key]
+				self.type = self.possibleIds.index(key)
+				self.myId = str(initial_data[key])
+				# if(self.type==0):
+				# 	print(type(self.myId))
+				# 	print(self.myId,self)
 			setattr(self,key,initial_data[key])
+		self.initial_data = initial_data
+
+	def getCenter(self):
+		out = list()
+		if(self.type==0):
+			raise Exception("getCenter not implemented for regular stops")
+			out.append(self.lat,self.lon)
+		elif(self.type==1):
+			for substop in self.substops:
+				out.append(self.substops[substop].getCenter())
+		else:
+			print("fix Stop getCenter")
+			# change to run through points to get min&max x,y and calc center
+			firstCord = self.initial_data["geometry"]["coordinates"][0][0]
+			invertedCord = [firstCord[1],firstCord[0]]
+			print(firstCord)
+			out.append(invertedCord)
+		return out
 	
 
 class Dao:
@@ -77,6 +101,8 @@ class Dao:
 	stop_times = dict()
 	trips = dict()
 	bookingRules = dict()
+	def getAgencyName(self):
+		return 'temp agencyname'
 
 
 def printShortHandTripInfo(trip):

@@ -2,7 +2,8 @@
 
 import pandas
 import json
-from FlexModels import *
+from flex_models import *
+
 
 def readTxtToDicts(folder,filename):
 	# turn first row plus row into an obj for stops
@@ -26,28 +27,31 @@ def addData(data, clazz,dataHolder,dao):
 		itt += 1
 
 
-def add_location_groups_stops(data,dao):
+def processLocationGroups(data,dao):
 	stops = dao.stops
-	# todo: this should just be part of Stop
 	for dataForStop in data:
-		stop = stops.get(dataForStop["location_group_id"])
+		stop = stops.get(str(dataForStop["location_group_id"]))
 		if(stop==None):
 			stop = Stop(dataForStop,dao)
 			stops[stop.myId] = stop
 		substopId = dataForStop['location_id']
 		if(substopId!=None):
 			substop = stops.get(substopId)
-			stop.substops[substopId] = substop
+			if(substop==None):
+				raise Exception("location group ",self.myId," requires substop ",self.location_id)
+			else:
+				print('adding substop ',substopId,' to stop ',stop.myId, '<',stop,'>')
+				stop.substops[substopId] = substop
+				print(stop.myId,' has ', len(stop.substops), ' substops')
 
 def readFlexData(folder):
 	dao = Dao()
-
 	addData(readJsonToDicts(folder,"locations.geojson"),Stop,dao.stops,dao)
-	add_location_groups_stops(readTxtToDicts(folder,"location_groups.txt"),dao)
+	processLocationGroups(readTxtToDicts(folder,"location_groups.txt"),dao)
 	addData(readTxtToDicts(folder,"stops.txt"),Stop,dao.stops,dao)
 
 	# for stop in dao.stops:
-	# 	print(stop, dao.stops[stop])
+	# 	print(stop, dao.stops[stop], dao.stops[stop].substops)
 
 
 	addData(readTxtToDicts(folder,"booking_rules.txt"),BookingRuleId,dao.bookingRules,dao)
@@ -60,6 +64,7 @@ def readFlexData(folder):
 
 	# for trip in dao.trips:
 	# 	print(trip, dao.trips[trip])
+
 
 	addData(readTxtToDicts(folder,"stop_times.txt"),StopTime,dao.stop_times,dao)
 
