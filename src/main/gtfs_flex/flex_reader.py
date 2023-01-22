@@ -3,6 +3,7 @@
 import pandas
 import json
 from flex_models import *
+from utilities import *
 
 
 def readTxtToDicts(folder,filename):

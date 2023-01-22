@@ -1,3 +1,5 @@
+
+
 class BookingRuleId:
 	possibleIds = ["booking_rule_id"]
 	def __init__(self, initial_data,dao):
@@ -41,10 +43,6 @@ class StopTime:
 				self.myId = datum
 		self.stop_id = str(self.stop_id)
 		self.stop=dao.stops.get(self.stop_id)
-		i = self.stop_id
-		i2 = 4148390
-		if(i!=i2):
-			print(False, ": type of stop_id = ", type(self.stop_id))
 		if (self.stop==None):
 			print("could not find stop " + str(self.stop_id))
 			raise Exception("stop_times must have stop")
@@ -56,12 +54,23 @@ class StopTime:
 		# print("\n\n")
 		# print("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
 		# printShortHandTripInfo(self.trip)
-		self.pickup_booking_rule=dao.bookingRules.get(self.pickup_booking_rule_id)
-		self.pickup_booking_rule.trips[self.myId]=self
-		self.drop_off_booking_rule=dao.bookingRules.get(self.drop_off_booking_rule_id)
-		self.drop_off_booking_rule.trips[self.myId]=self
+		if(isNotNull(self,"pickup_booking_rule_id")):
+			self.pickup_booking_rule=dao.bookingRules.get(self.pickup_booking_rule_id)
+			if(self.pickup_booking_rule==None):
+				raise Exception("Stoptime {} {} claims to have associated pickup booking rule {} but none could be found".format(self,self.myId,self.pickup_booking_rule_id) )
+			self.pickup_booking_rule.trips[self.myId]=self
+		
+		if(isNotNull(self,"drop_off_booking_rule_id")):
+			self.drop_off_booking_rule=dao.bookingRules.get(self.drop_off_booking_rule_id)
+			if(self.drop_off_booking_rule==None):
+				raise Exception("Stoptime {} {} claims to have associated drop_off booking rule {} but none could be found".format(self,self.myId,self.drop_off_booking_rule_id) )
+			self.drop_off_booking_rule.trips[self.myId]=self
 
-
+def isNotNull(obj,attr):
+	if(hasattr(obj,attr)):
+		if(str(getattr(obj,attr))!="nan"):
+			return True
+	return False
 
 # somthing that turns core id into ID
 class Stop:

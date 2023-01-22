@@ -53,10 +53,15 @@ def addLegend(text,folium_map=None, address="pycoatextlogo.png"):
 
 
 debug = True
-def printDebug(stringstuff):
+def printDebug(stuffToPrint):
 	if debug == True:
-		print(stringstuff)
+		print("".join(str(item) for item in stuffToPrint))
 
+
+def connectAToBOnMap(cordPair,folium_map):
+	# please make this an arrow
+	# folium.PolyLine(cordPair,style_function=lambda x:style,weight=2.5, opacity=1).add_to(folium_map)
+	printDebug(['pretend these were added: baseCord&cord: ',cordPair])
 
 def addLinesToMap(locationsForStopTimes,folium_map):
 	polyLineCords= list()
@@ -68,10 +73,7 @@ def addLinesToMap(locationsForStopTimes,folium_map):
 			if(cord not in cordsForThisStopTime):
 				# print("cord not in cordsForThisStopTime")
 				for baseCord in baseCords:
-					# print("baseCord in baseCords")
-					folium.PolyLine([baseCord,cord],style_function=lambda x:style,weight=2.5, opacity=1).add_to(folium_map)
-					printDebug(['baseCord&cord: ',[baseCord,cord]])
-
+					connectAToBOnMap([baseCord,cord],folium_map)
 				if(not cord in baseCords):
 					# print("not cord in baseCords")
 					cordsForThisStopTime.append(cord)
