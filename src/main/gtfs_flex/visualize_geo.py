@@ -83,8 +83,12 @@ def showMousePosition(folium_map):
 	folium_map.add_child(folium.LatLngPopup())
 
 
-def addText(folium_map):
+def addText(text,folium_map=None):
+	if(folium_map = None):
+		global m
+		folium_map = m
 	colormap = cm.linear.Set1.scale(0, 35).to_step(10)
+	print (text)
 	colormap.caption = 'A colormap caption'
 	folium_map.add_child(colormap)
 

@@ -19,8 +19,10 @@ color = 'red'
 dao = readFlexData(data_path)
 start()
 generateMapFromDao(dao,color = color)
-for out in getTravelInfoForTripsStrings(dao):
-		print(out+"\n")
+out = ""
+for text in getTravelInfoForTripsStrings(dao):
+		out+=text
+addText(out)
 save(data_path+"-map.html")
 
 shutil.rmtree(data_path)
