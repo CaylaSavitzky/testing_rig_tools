@@ -1,6 +1,10 @@
 okay so:
 
 
+feature:
+	automatically center map on data at start
+
+
 problem:
 	this whole thing is a garbage mess of scripts
 solution:
@@ -22,6 +26,8 @@ solutions:
 		- allow text scrolling
 		- allow text to be dynamically sized
 
+problem:
+	regular stop locations which do not travel to flex data should have better printed updates
 
 feature:
 	multiple agencies that work by layers

@@ -81,8 +81,7 @@ class Stop:
 	def getCenter(self):
 		out = list()
 		if(self.type==0):
-			raise Exception("getCenter not implemented for regular stops")
-			out.append(self.lat,self.lon)
+			out.append([self.stop_lat,self.stop_lon])
 		elif(self.type==1):
 			for substop in self.substops:
 				out.append(self.substops[substop].getCenter())

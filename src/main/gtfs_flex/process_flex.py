@@ -26,3 +26,10 @@ addLegend(out,address=data_path+'-image.png')
 save(data_path+"-map.html")
 
 shutil.rmtree(data_path)
+
+
+import os
+command = " /bin/bash -c firefox "+data_path+"-map.html"
+print("firefox "+data_path+"-map.html")
+os.system(command)
+

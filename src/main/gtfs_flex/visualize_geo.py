@@ -100,7 +100,7 @@ def addMarker(location,folium_map):
 
 
 def addStopToMap(stop,folium_map):
-	raise Exception("addStopToMap is not yet implemented")
+	folium.Circle(stop.getCenter()[0]).add_to(folium_map)
 
 
 
@@ -114,7 +114,7 @@ def getStopCenterListAndAddStopsToMap(stop_time,folium_map):
 	stop = st.stop
 	printDebug(['adding stoptime <',st.myId,'>  and stop <', str(st.stop.myId),'> of type: ', str(st.stop.type)])
 	if(stop.type==0):
-		addStopToMap(stop,map)
+		addStopToMap(stop,folium_map)
 	elif(stop.type==1):
 		printDebug(['stop ',stop.myId,' is a location group with ', len(stop.substops), ' substops'])
 		for substop in st.stop.substops:
