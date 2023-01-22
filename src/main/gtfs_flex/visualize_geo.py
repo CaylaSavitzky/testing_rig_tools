@@ -25,7 +25,7 @@ def addLegend(text,folium_map=None, address="pycoatextlogo.png"):
 	# textContainer = folium.Tooltip(text)
 	# FloatImage(image_link, bottom=50, left=50, tooltip="testing").add_to(folium_map)
 	global JENKITY_PAGE_WIDTH
-	W, H = (JENKITY_PAGE_WIDTH,1000)
+	W, H = (JENKITY_PAGE_WIDTH,900)
 	im = Image.new("RGBA",(W,H))
 	draw = ImageDraw.Draw(im)
 	msg = text

@@ -1,4 +1,4 @@
-
+from utilities import *
 
 class BookingRuleId:
 	possibleIds = ["booking_rule_id"]
@@ -54,23 +54,19 @@ class StopTime:
 		# print("\n\n")
 		# print("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
 		# printShortHandTripInfo(self.trip)
-		if(isNotNull(self,"pickup_booking_rule_id")):
+		if(isNotNullOrNan(self.pickup_booking_rule_id)):
 			self.pickup_booking_rule=dao.bookingRules.get(self.pickup_booking_rule_id)
 			if(self.pickup_booking_rule==None):
 				raise Exception("Stoptime {} {} claims to have associated pickup booking rule {} but none could be found".format(self,self.myId,self.pickup_booking_rule_id) )
 			self.pickup_booking_rule.trips[self.myId]=self
 		
-		if(isNotNull(self,"drop_off_booking_rule_id")):
+		if(isNotNullOrNan(self.drop_off_booking_rule_id)):
 			self.drop_off_booking_rule=dao.bookingRules.get(self.drop_off_booking_rule_id)
 			if(self.drop_off_booking_rule==None):
 				raise Exception("Stoptime {} {} claims to have associated drop_off booking rule {} but none could be found".format(self,self.myId,self.drop_off_booking_rule_id) )
 			self.drop_off_booking_rule.trips[self.myId]=self
 
-def isNotNull(obj,attr):
-	if(hasattr(obj,attr)):
-		if(str(getattr(obj,attr))!="nan"):
-			return True
-	return False
+
 
 # somthing that turns core id into ID
 class Stop:
@@ -86,6 +82,7 @@ class Stop:
 				# 	print(self.myId,self)
 			setattr(self,key,initial_data[key])
 		self.initial_data = initial_data
+		self.parentStops = dict()
 
 	def getCenter(self):
 		out = list()

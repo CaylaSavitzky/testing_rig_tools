@@ -34,17 +34,19 @@ def stringifyBookingInfo(rule):
 def stringifyStopTimeOutput(st):
 	out = ""
 	# out +="in stop_time " + str(st.myId)
-	out += "<location:" + str(st.stop.myId) + ">"
-	if(st.stop.type==0):
-		out+= "which is a regular stop"
+	if(len(st.stop.substops)>0):
+		out += "<parent location:" + str(st.stop.myId) + "> and "
+		for substop in st.stop.substops:
+			out += "<location:" + str(substop) + "> "
 	else:
-		out += " which is allowed between the hours of: " + str(st.start_pickup_drop_off_window)
-		out += " and " + str(st.end_pickup_drop_off_window) +".\n"
-		if(isNotNullOrNan(st.pickup_booking_rule_id)):
-			if(isNotNullOrNan(st.drop_off_booking_rule)):
-				out += stringifyBookingInfo(st.pickup_booking_rule)
-		else:
-			out+= " cannot give more information as stoptime does not have a pickup or drop_off _booking_rule"
+		out += "<location:" + str(st.stop.myId) + ">"
+	out += "\n which is allowed between the hours of: " + str(st.start_pickup_drop_off_window)
+	out += " and " + str(st.end_pickup_drop_off_window) +".\n"
+	if(isNotNullOrNan(st.pickup_booking_rule_id)):
+		if(isNotNullOrNan(st.drop_off_booking_rule)):
+			out += stringifyBookingInfo(st.pickup_booking_rule)
+	else:
+		out+= " cannot give more information as stoptime does not have a pickup or drop_off _booking_rule"
 	return out
 
 

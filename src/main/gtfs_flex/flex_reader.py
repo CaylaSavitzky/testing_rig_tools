@@ -53,9 +53,10 @@ def processLocationGroups(data,dao):
 			if(substop==None):
 				raise Exception("location group ",self.myId," requires substop ",self.location_id)
 			else:
-				print('adding substop ',substopId,' to stop ',stop.myId, '<',stop,'>')
+				# print('adding substop ',substopId,' to stop ',stop.myId, '<',stop,'>')
 				stop.substops[substopId] = substop
-				print(stop.myId,' has ', len(stop.substops), ' substops')
+				substop.parentStops[stop.myId]=stop
+				# print(stop.myId,' has ', len(stop.substops), ' substops')
 
 def readFlexData(folder):
 	dao = Dao()
