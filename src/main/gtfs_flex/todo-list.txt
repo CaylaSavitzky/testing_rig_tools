@@ -1,0 +1,36 @@
+okay so:
+
+
+problem:
+	this whole thing is a garbage mess of scripts
+solution:
+	- make proper fricking classes
+	- better self identifier for models
+	- make dao pattern actually dao pattern even if impl is dicts
+
+problem:
+	gross sidescreen image
+solutions:
+	1 -
+		- add arrows for trips (directionality feature)
+		- add tooltip or popup that start as on with traveltimes
+		- maintain description as backup in associated txt?
+	2 -
+		- add a better way to float text
+			-A modify the html after map is saved
+			-B add plugin to package?
+		- allow text scrolling
+		- allow text to be dynamically sized
+
+
+feature:
+	multiple agencies that work by layers
+		layer control element - confirm layers work
+		id class for models which includes agency and object type
+		read multiple files
+
+feature:
+	different maps for different days
+
+feature:
+	vectors btwn locations arrows
