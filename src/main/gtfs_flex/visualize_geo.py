@@ -108,7 +108,8 @@ def addStopToMap(stop,folium_map):
 
 def addLocationToMap(location,folium_map):
 	printDebug(['adding location(stop) to map: ',location.myId])
-	folium.GeoJson(location.initial_data["geometry"],style_function=lambda x:style).add_child(folium.Popup('location: '+ str(location.myId))).add_to(folium_map)
+	popup=folium.Popup('location: '+ str(location.myId),show=True,sticky=True)
+	folium.GeoJson(location.initial_data["geometry"],style_function=lambda x:style).add_child(popup).add_to(folium_map)
 
 def getStopCenterListAndAddStopsToMap(stop_time,folium_map):
 	stops = list()
