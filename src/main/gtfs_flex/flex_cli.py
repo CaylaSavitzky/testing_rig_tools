@@ -38,7 +38,7 @@ def stringifyStopTimeOutput(st):
 	if(st.stop.type==0):
 		out+= "which is a regular stop"
 	else:
-		out += " is allowed between the hours of: " + str(st.start_pickup_drop_off_window)
+		out += " which is allowed between the hours of: " + str(st.start_pickup_drop_off_window)
 		out += " and " + str(st.end_pickup_drop_off_window) +".\n"
 		if(isNotNullOrNan(st.pickup_booking_rule_id)):
 			if(isNotNullOrNan(st.drop_off_booking_rule)):
@@ -51,16 +51,18 @@ def stringifyStopTimeOutput(st):
 def getTravelInfoForTripsStrings(dao):
 	outputStringsContainer = list()
 	for trip in dao.trips:
-		out = "for <Trip:"+trip + ">: \n"
+		out = "for trip-{}: \n".format(trip)
 		itt = 0
 		trip = dao.trips[trip]
 		for stop_time in trip.stop_times:
-			if(itt<len(trip.stop_times)-1):
-				if(itt>0):
-					out += " or \n"
+			if(itt==0):
+			# if(itt<len(trip.stop_times)-1):
+				# if(itt>0):
+				# 	out += " and \n"
 				out += " travel from: "
-			if(itt==len(trip.stop_times)-1):
-				out += ' travel to: ' 
+			# if(itt==len(trip.stop_times)-1):
+			else:
+				out += ' to: ' 
 			out += stringifyStopTimeOutput(trip.stop_times[stop_time])
 			out +="\n"
 			itt+=1

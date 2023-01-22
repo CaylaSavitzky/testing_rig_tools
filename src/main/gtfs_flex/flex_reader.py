@@ -9,12 +9,22 @@ from utilities import *
 def readTxtToDicts(folder,filename):
 	# turn first row plus row into an obj for stops
 	# dict(zip(a,b))
-	return pandas.read_csv(folder+'/'+filename).to_dict(orient='records')
+	try:
+		return pandas.read_csv(folder+'/'+filename).to_dict(orient='records')
+	except FileNotFoundError:
+		print("could not read file: "+ folder+'/'+filename)
+		return None
 
 def readJsonToDicts(folder,filename):
-	return json.load(open(folder+'/'+filename))['features']
+	try:
+		return json.load(open(folder+'/'+filename))['features']
+	except FileNotFoundError:
+		print("could not read file: "+ folder+'/'+filename)
+		return None
 
 def addData(data, clazz,dataHolder,dao):
+	if(data==None):
+		return
 	# todo: check if a datum is a subgroup of another stop and vice versa?
 	itt = 0
 	for datum in data:
@@ -29,6 +39,8 @@ def addData(data, clazz,dataHolder,dao):
 
 
 def processLocationGroups(data,dao):
+	if(data==None):
+		return
 	stops = dao.stops
 	for dataForStop in data:
 		stop = stops.get(str(dataForStop["location_group_id"]))
