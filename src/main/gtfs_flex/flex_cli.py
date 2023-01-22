@@ -23,10 +23,10 @@ from flex_reader import *
 def stringifyBookingInfo(rule):
 	out = ""
 	if(rule.booking_type==2):
-		out += " Make sure to book at most " + str(rule.prior_notice_start_day) + " days beforehand after " + str(rule.prior_notice_start_time)
+		out += "  Make sure to book at most " + str(rule.prior_notice_start_day) + " days beforehand after " + str(rule.prior_notice_start_time)
 		out += " and at least "+str(rule.prior_notice_last_day) +" days beforehand by " + str(rule.prior_notice_last_time)
 	else:
-		out += " Make sure to book at least " + str(rule.prior_notice_duration_min) +" minutes beforehand "
+		out += "  Make sure to book at least " + str(rule.prior_notice_duration_min) +" minutes beforehand "
 	if((rule.booking_type==1) and (rule.prior_notice_duration_max!=None)):
 		out += " and at most " + str(rule.prior_notice_duration_max) + " minutes beforehand"
 	return out;
@@ -51,9 +51,9 @@ def getTravelInfoForTripsStrings(dao):
 			if(itt<len(trip.stop_times)-1):
 				if(itt>0):
 					out += " or \n"
-				out += "travel from: "
+				out += " travel from: "
 			if(itt==len(trip.stop_times)-1):
-				out += 'travel to: ' 
+				out += ' travel to: ' 
 			out += stringifyStopTimeOutput(trip.stop_times[stop_time])
 			out +="\n"
 			itt+=1

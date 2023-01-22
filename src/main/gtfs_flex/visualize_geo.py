@@ -1,8 +1,56 @@
 import geopandas
 import folium
 from flex_reader import *
-from folium.plugins import MousePosition
-import branca.colormap as cm
+from folium.plugins import MousePosition, FloatImage
+import branca
+
+
+
+from PIL import Image, ImageDraw, ImageFont
+import base64
+
+
+JENKITY_PAGE_WIDTH = 920
+
+
+
+
+def addLegend(text,folium_map=None, address="pycoatextlogo.png"):
+	if(folium_map == None):
+		global m
+		folium_map = m
+	# image_link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2lSt_kAW9koUo_rHtER8WedSICXdvl8c7_Q&usqp=CAU"
+	# iframe = folium.IFrame(text, width=700, height=450)
+	# popup = folium.Popup(iframe, max_width=3000)
+	# textContainer = folium.Tooltip(text)
+	# FloatImage(image_link, bottom=50, left=50, tooltip="testing").add_to(folium_map)
+	global JENKITY_PAGE_WIDTH
+	W, H = (JENKITY_PAGE_WIDTH,1000)
+	im = Image.new("RGBA",(W,H))
+	draw = ImageDraw.Draw(im)
+	msg = text
+	w, h = draw.textsize(msg)
+	fnt = ImageFont.truetype('/Library/Fonts/Arial.ttf', 18)
+
+	# if img.size[0] > img.size[1]:
+	# 	shorter = img.size[1]
+	# 	llx, lly = (img.size[0]-img.size[1]) // 2 , 0
+	# else:
+	# 	shorter = img.size[0]
+	# 	llx, lly = 0, (img.size[1]-img.size[0]) // 2
+	draw.rectangle(((0,0),(W,H)), fill=(0,0,0)+(255,))
+	draw.multiline_text((20,0), msg, font=fnt,fill=(255, 255, 255))
+	im.save(address, "PNG")
+	print(address)
+	with open(address, 'rb') as lf:
+		# open in binary mode, read bytes, encode, decode obtained bytes as utf-8 string
+		b64_content = base64.b64encode(lf.read()).decode('utf-8')
+		FloatImage('data:image/png;base64,{}'.format(b64_content), bottom=0, left=0).add_to(folium_map)
+		# FloatImage(b64_content, bottom=0, left=0).add_to(m)
+
+
+
+
 
 debug = True
 def printDebug(stringstuff):
@@ -41,6 +89,14 @@ def addMarker(location,folium_map):
         html='<div style="font-size: 24pt">Test</div>',
         )
     ).add_to(folium_map)
+	text = 'your text here'
+
+	iframe = folium.IFrame(text, width=700, height=450)
+	popup = folium.Popup(iframe, max_width=3000)
+
+	Text = folium.Marker(location=[lat,lon], popup=popup,
+	                     icon=folium.Icon(icon_color='green'))
+	m.add_child(text)
 
 
 def addStopToMap(stop,folium_map):
@@ -83,15 +139,15 @@ def showMousePosition(folium_map):
 	folium_map.add_child(folium.LatLngPopup())
 
 
-def addText(text,folium_map=None):
-	if(folium_map = None):
-		global m
-		folium_map = m
-	colormap = cm.linear.Set1.scale(0, 35).to_step(10)
-	print (text)
-	colormap.caption = 'A colormap caption'
-	folium_map.add_child(colormap)
-
+# def addLegend(text,folium_map=None):
+# 	if(folium_map == None):
+# 		global m
+# 		folium_map = m
+# 	colormap = branca.colormap.linear.YlOrRd_09.scale(0, 8500)
+# 	print (text)
+# 	colormap.caption = text
+# 	folium_map.add_child(colormap)
+	
 
 
 def generateMapFromDao(dao,color="green"):

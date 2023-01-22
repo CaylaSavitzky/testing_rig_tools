@@ -21,8 +21,8 @@ start()
 generateMapFromDao(dao,color = color)
 out = ""
 for text in getTravelInfoForTripsStrings(dao):
-		out+=text
-addText(out)
+		out+=text+"\n"
+addLegend(out,address=data_path+'-image.png')
 save(data_path+"-map.html")
 
 shutil.rmtree(data_path)
