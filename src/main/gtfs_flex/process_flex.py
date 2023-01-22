@@ -22,7 +22,11 @@ generateMapFromDao(dao,color = color)
 out = ""
 for text in getTravelInfoForTripsStrings(dao):
 		out+=text+"\n"
-addLegend(out,address=data_path+'-image.png')
+if(len(sys.argv)>2):
+	# probably should add some options here
+	print(out)	
+else:
+	addLegend(out,address=data_path+'-image.png')
 save(data_path+"-map.html")
 
 shutil.rmtree(data_path)
