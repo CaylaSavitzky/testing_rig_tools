@@ -16,7 +16,8 @@ unzip(file,data_path)
 
 
 color = 'red'
-dao = readFlexData(data_path)
+dao = DaoImpl()
+FlexReader.readFlexDirectoryIntoDao(data_path,dao)
 start()
 generateMapFromDao(dao,color = color)
 out = ""

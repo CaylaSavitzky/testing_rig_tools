@@ -6,9 +6,16 @@ add more as needed.
 from utilities import *
 from abc import ABC, abstractmethod
 
+
+'''
+base for all other gtfs models
+'''
 class GtfsObject:
 	@abstractmethod
 	def getId(self):
+		pass
+	@abstractmethod
+	def __init__(self, initial_data,dao):
 		pass
 
 class BookingRule(GtfsObject):
@@ -145,6 +152,9 @@ class Dao:
 	@abstractmethod
 	def getAgencyName(self):
 		pass
+	@abstractmethod
+	def readFlexDirectory(self):
+		pass
 
 class DaoImpl:
 	data={
@@ -175,7 +185,6 @@ class DaoImpl:
 		return self.data[Stop]
 	def getStopTimes(self):
 		return self.data[stop_times]
-
 
 def printShortHandTripInfo(trip):
 	out = print("\n",trip.myId, trip)

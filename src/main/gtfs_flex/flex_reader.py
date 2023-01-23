@@ -6,6 +6,7 @@ from flex_models import *
 from utilities import *
 
 
+
 def readTxtToDicts(folder,filename):
 	# turn first row plus row into an obj for stops
 	# dict(zip(a,b))
@@ -22,67 +23,59 @@ def readJsonToDicts(folder,filename):
 		print("could not read file: "+ folder+'/'+filename)
 		return None
 
-def addData(data,clazz,dao):
-	if(data==None):
-		return
-	# todo: check if a datum is a subgroup of another stop and vice versa?
-	itt = 0
-	for datum in data:
-		datum["backup_id"] = itt
-		datum = clazz(datum,dao)
-		if(datum in dao):
-			print(dataHolder.get(datum.getId()).__dict__)
-			print(datum.__dict__)
-			raise Exception("datum ids and equivilents must be unique");
-		dao.addGftsObject(datum)
-		itt += 1
+class FlexReader():
+	def addData(data,clazz,dao):
+		if(data==None):
+			return
+		# todo: check if a datum is a subgroup of another stop and vice versa?
+		itt = 0
+		for datum in data:
+			datum["backup_id"] = itt
+			datum = clazz(datum,dao)
+			if(datum in dao):
+				print(dataHolder.get(datum.getId()).__dict__)
+				print(datum.__dict__)
+				raise Exception("datum ids and equivilents must be unique");
+			dao.addGftsObject(datum)
+			itt += 1
 
 
-def processLocationGroups(data,dao):
-	if(data==None):
-		return
-	stops = dao.getStops()
-	for dataForStop in data:
-		stop = stops.get(str(dataForStop["location_group_id"]))
-		if(stop==None):
-			stop = Stop(dataForStop,dao)
-			stops[stop.getId()] = stop
-		substopId = dataForStop['location_id']
-		if(substopId!=None):
-			substop = stops.get(substopId)
-			if(substop==None):
-				raise Exception("location group ",self.getId()," requires substop ",self.location_id)
-			else:
-				# print('adding substop ',substopId,' to stop ',stop.getId(), '<',stop,'>')
-				stop.substops[substopId] = substop
-				substop.parentStops[stop.getId()]=stop
-				# print(stop.getId(),' has ', len(stop.substops), ' substops')
-
-def readFlexData(folder):
-	dao = DaoImpl()
-	addData(readJsonToDicts(folder,"locations.geojson"),Stop,dao)
-	processLocationGroups(readTxtToDicts(folder,"location_groups.txt"),dao)
-	addData(readTxtToDicts(folder,"stops.txt"),Stop,dao)
-
-	# for stop in dao.getStops():
-	# 	print(stop, dao.getStops()[stop], dao.getStops()[stop].substops)
+	def processLocationGroups(data,dao):
+		if(data==None):
+			return
+		stops = dao.getStops()
+		for dataForStop in data:
+			stop = stops.get(str(dataForStop["location_group_id"]))
+			if(stop==None):
+				stop = Stop(dataForStop,dao)
+				stops[stop.getId()] = stop
+			substopId = dataForStop['location_id']
+			if(substopId!=None):
+				substop = stops.get(substopId)
+				if(substop==None):
+					raise Exception("location group ",stop.getId()," requires substop ",stop.location_id)
+				else:
+					# print('adding substop ',substopId,' to stop ',stop.getId(), '<',stop,'>')
+					stop.substops[substopId] = substop
+					substop.parentStops[stop.getId()]=stop
+					# print(stop.getId(),' has ', len(stop.substops), ' substops')
 
 
-	addData(readTxtToDicts(folder,"booking_rules.txt"),BookingRule,dao)
+	def readFlexDirectoryIntoDao(folder,dao, debug=False):
+		FlexReader.addData(readJsonToDicts(folder,"locations.geojson"),Stop,dao)
+		FlexReader.processLocationGroups(readTxtToDicts(folder,"location_groups.txt"),dao)
+		FlexReader.addData(readTxtToDicts(folder,"stops.txt"),Stop,dao)
+		# for stop in dao.getStops():
+		# 	print(stop, dao.getStops()[stop], dao.getStops()[stop].substops)
+		FlexReader.addData(readTxtToDicts(folder,"booking_rules.txt"),BookingRule,dao)
+		# for route in dao.routes:
+		# 	print(route, dao.routes[route])
+		FlexReader.addData(readTxtToDicts(folder,"trips.txt"),Trip,dao)
+		# for trip in dao.getTrips():
+		# 	print(trip, dao.getTrips()[trip])
+		FlexReader.addData(readTxtToDicts(folder,"stop_times.txt"),StopTime,dao)
+		# for stoptime in dao.stop_times:
+		# 	print(stoptime, dao.stop_times[stoptime].stop.getId())
 
-	# for route in dao.routes:
-	# 	print(route, dao.routes[route])
 
 
-	addData(readTxtToDicts(folder,"trips.txt"),Trip,dao)
-
-	# for trip in dao.getTrips():
-	# 	print(trip, dao.getTrips()[trip])
-
-
-	addData(readTxtToDicts(folder,"stop_times.txt"),StopTime,dao)
-
-	# for stoptime in dao.stop_times:
-	# 	print(stoptime, dao.stop_times[stoptime].stop.getId())
-
-	return dao

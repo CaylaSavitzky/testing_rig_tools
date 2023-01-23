@@ -14,16 +14,15 @@ JENKITY_PAGE_WIDTH = 920
 
 
 
-
-def addLegend(text,folium_map=None, address="pycoatextlogo.png"):
+"""
+an incredibly messy method where we convert text into an image and then
+cover half the page with that image because there are no other pre-existing 
+abosolute possitioned items in folium
+"""
+def addLegend(text,folium_map=None):
 	if(folium_map == None):
 		global m
 		folium_map = m
-	# image_link = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR2lSt_kAW9koUo_rHtER8WedSICXdvl8c7_Q&usqp=CAU"
-	# iframe = folium.IFrame(text, width=700, height=450)
-	# popup = folium.Popup(iframe, max_width=3000)
-	# textContainer = folium.Tooltip(text)
-	# FloatImage(image_link, bottom=50, left=50, tooltip="testing").add_to(folium_map)
 	global JENKITY_PAGE_WIDTH
 	W, H = (JENKITY_PAGE_WIDTH,900)
 	im = Image.new("RGBA",(W,H))
@@ -31,13 +30,6 @@ def addLegend(text,folium_map=None, address="pycoatextlogo.png"):
 	msg = text
 	w, h = draw.textsize(msg)
 	fnt = ImageFont.truetype('/Library/Fonts/Arial.ttf', 18)
-
-	# if img.size[0] > img.size[1]:
-	# 	shorter = img.size[1]
-	# 	llx, lly = (img.size[0]-img.size[1]) // 2 , 0
-	# else:
-	# 	shorter = img.size[0]
-	# 	llx, lly = 0, (img.size[1]-img.size[0]) // 2
 	draw.rectangle(((0,0),(W,H)), fill=(0,0,0)+(255,))
 	draw.multiline_text((20,0), msg, font=fnt,fill=(255, 255, 255))
 	im.save(address, "PNG")

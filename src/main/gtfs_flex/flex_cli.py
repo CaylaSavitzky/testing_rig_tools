@@ -81,7 +81,8 @@ if __name__ == "__main__":
 	print("running flex_cli")
 	folder = sys.argv[1]
 
-	dao = readFlexData(folder)
+	dao = DaoImpl()
+	FlexReader.readFlexDirectoryIntoDao(folder,dao)
 
 	# for trip in dao.trips:
 	# 	out = print("\n",trip, dao.trips[trip])
