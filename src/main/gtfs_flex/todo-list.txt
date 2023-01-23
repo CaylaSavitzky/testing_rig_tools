@@ -5,7 +5,6 @@ okay so:
 problem:
 	this whole thing is a garbage mess of scripts
 solution:
-	- make proper fricking classes
 	- better self identifier for models
 	- dao should take class and id and return val & accept obj and put into right location
 		- would it make sense to have the dao handle making reciprocal relationships btwn relivant classes? tbh i don't think so, that feels wrong for access obj

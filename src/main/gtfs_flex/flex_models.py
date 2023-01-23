@@ -6,6 +6,10 @@ add more as needed.
 from utilities import *
 from abc import ABC, abstractmethod
 
+class Cord(list):
+	def __init__(self, *args, **kwargs):
+		list.__init__(self, args[0])
+
 
 '''
 base for all other gtfs models
