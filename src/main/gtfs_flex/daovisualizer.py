@@ -60,7 +60,7 @@ class DaoVisualizer:
 			baseCords.extend(cordsForThisStopTime)
 			# print(baseCords)
 
-		def addLocationToMap(location,folium_map):
+	def addLocationToMap(location,folium_map):
 		printDebug(['adding location(stop) to map: ',location.getId()])
 		popup = createStickyPopup('location: {}'.format(location.getId()))
 		addGeoJsonToMapWithChild(location.initial_data["geometry"],popup,folium_map,style = style)
