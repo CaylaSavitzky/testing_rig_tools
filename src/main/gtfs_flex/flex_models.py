@@ -11,7 +11,7 @@ class GtfsObject:
 	def getId(self):
 		pass
 
-class BookingRuleId(GtfsObject):
+class BookingRule(GtfsObject):
 	possibleIds = ["booking_rule_id"]
 	def __init__(self, initial_data,dao):
 		self.trips = dict()
@@ -34,7 +34,7 @@ class Trip(GtfsObject):
 			if (key in self.possibleIds):
 				self.myId = datum
 			if (key == "stop_id"):
-				self.stop=dao.stops[datum]
+				self.stop=dao.getGtfsObject(Stop,datum)
 				if (self.stop==None):
 					raise Exception("could not find stop " + datum)
 			setattr(self,key,datum)
@@ -57,11 +57,11 @@ class StopTime(GtfsObject):
 			if (key in self.possibleIds):
 				self.myId = datum
 		self.stop_id = str(self.stop_id)
-		self.stop=dao.stops.get(self.stop_id)
+		self.stop=dao.getGtfsObject(Stop,self.stop_id)
 		if (self.stop==None):
 			print("could not find stop " + str(self.stop_id))
 			raise Exception("stop_times must have stop")
-		self.trip=dao.trips.get(self.trip_id)
+		self.trip=dao.getGtfsObject(Trip,self.trip_id)
 		if (self.trip==None):
 			print("could not find trip " + self.trip_id)
 			raise Exception("stop_times must have trip")
@@ -70,13 +70,13 @@ class StopTime(GtfsObject):
 		# print("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
 		# printShortHandTripInfo(self.trip)
 		if(isNotNullOrNan(self.pickup_booking_rule_id)):
-			self.pickup_booking_rule=dao.bookingRules.get(self.pickup_booking_rule_id)
+			self.pickup_booking_rule=dao.getGtfsObject(BookingRule,self.pickup_booking_rule_id)
 			if(self.pickup_booking_rule==None):
 				raise Exception("Stoptime {} {} claims to have associated pickup booking rule {} but none could be found".format(self,self.myId,self.pickup_booking_rule_id) )
 			self.pickup_booking_rule.trips[self.myId]=self
 		
 		if(isNotNullOrNan(self.drop_off_booking_rule_id)):
-			self.drop_off_booking_rule=dao.bookingRules.get(self.drop_off_booking_rule_id)
+			self.drop_off_booking_rule=dao.getGtfsObject(BookingRule,self.drop_off_booking_rule_id)
 			if(self.drop_off_booking_rule==None):
 				raise Exception("Stoptime {} {} claims to have associated drop_off booking rule {} but none could be found".format(self,self.myId,self.drop_off_booking_rule_id) )
 			self.drop_off_booking_rule.trips[self.myId]=self
@@ -119,17 +119,62 @@ class Stop(GtfsObject):
 	def getId(self):
 		return self.myId
 	
-
 class Dao:
-	stops = dict()
-	stop_times = dict()
-	trips = dict()
-	bookingRules = dict()
-	def getGtfsObject(type,id):
-		raise Exception("implement getGtfsObject")
-
+	def __contains__(self,item):
+		raise Exception("use getDict instead")
+		if(not type(item) in self.data):
+			return False
+		if(not item in self.data.get(type(item))):
+			return False
+		return True
+	@abstractmethod
+	def getGtfsObject(self,objType,id):
+		pass
+	@abstractmethod
+	def addGftsObject(self,obj):
+		pass
+	@abstractmethod
+	def getTrips(self):
+		pass
+	@abstractmethod
+	def getStops(self):
+		pass
+	@abstractmethod
+	def getStopTimes(self):
+		pass
+	@abstractmethod
 	def getAgencyName(self):
-		return 'temp agencyname'
+		pass
+
+class DaoImpl:
+	data={
+	Stop:dict(),
+	StopTime:dict(),
+	Trip:dict(),
+	BookingRule:dict()
+	}
+	def __contains__(self,item):
+		if(not type(item) in self.data):
+			return False
+		if(not item in self.data.get(type(item))):
+			return False
+		return True
+	def getGtfsObject(self,objType,id):
+		if(not objType in self.data):
+			raise Exception("dao cannot process objects of type {}".format(objType))
+		return self.data.get(objType).get(id)
+	def addGftsObject(self,obj):
+		if(not type(obj) in self.data):
+			raise Exception("dao cannot process objects of type {}".format(type(obj)))
+		self.data.get(type(obj))[obj.getId()] = obj
+	def getDict(self,clazz):
+		raise Exception("implement getDict")
+	def getTrips(self):
+		return self.data[Trip]
+	def getStops(self):
+		return self.data[Stop]
+	def getStopTimes(self):
+		return self.data[stop_times]
 
 
 def printShortHandTripInfo(trip):

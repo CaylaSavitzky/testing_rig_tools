@@ -7,7 +7,6 @@ problem:
 solution:
 	- make proper fricking classes
 	- better self identifier for models
-	- make dao pattern actually dao pattern even if impl is dicts
 	- dao should take class and id and return val & accept obj and put into right location
 		- would it make sense to have the dao handle making reciprocal relationships btwn relivant classes? tbh i don't think so, that feels wrong for access obj
 	- there are too many situations where things other than objects are being passed around when it *really* should just be objects... <.< looking at you visualize_geo.py

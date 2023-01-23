@@ -52,10 +52,10 @@ def stringifyStopTimeOutput(st):
 
 def getTravelInfoForTripsStrings(dao):
 	outputStringsContainer = list()
-	for trip in dao.trips:
+	for trip in dao.getTrips():
 		out = "for trip-{}: \n".format(trip)
 		itt = 0
-		trip = dao.trips[trip]
+		trip = dao.getGtfsObject(Trip,trip)
 		for stop_time in trip.stop_times:
 			if(itt==0):
 			# if(itt<len(trip.stop_times)-1):

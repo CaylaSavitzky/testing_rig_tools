@@ -22,7 +22,7 @@ def readJsonToDicts(folder,filename):
 		print("could not read file: "+ folder+'/'+filename)
 		return None
 
-def addData(data, clazz,dataHolder,dao):
+def addData(data,clazz,dao):
 	if(data==None):
 		return
 	# todo: check if a datum is a subgroup of another stop and vice versa?
@@ -30,18 +30,18 @@ def addData(data, clazz,dataHolder,dao):
 	for datum in data:
 		datum["backup_id"] = itt
 		datum = clazz(datum,dao)
-		if(dataHolder.get(datum.getId())!=None):
+		if(datum in dao):
 			print(dataHolder.get(datum.getId()).__dict__)
 			print(datum.__dict__)
 			raise Exception("datum ids and equivilents must be unique");
-		dataHolder[datum.getId()] = datum
+		dao.addGftsObject(datum)
 		itt += 1
 
 
 def processLocationGroups(data,dao):
 	if(data==None):
 		return
-	stops = dao.stops
+	stops = dao.getStops()
 	for dataForStop in data:
 		stop = stops.get(str(dataForStop["location_group_id"]))
 		if(stop==None):
@@ -59,28 +59,28 @@ def processLocationGroups(data,dao):
 				# print(stop.getId(),' has ', len(stop.substops), ' substops')
 
 def readFlexData(folder):
-	dao = Dao()
-	addData(readJsonToDicts(folder,"locations.geojson"),Stop,dao.stops,dao)
+	dao = DaoImpl()
+	addData(readJsonToDicts(folder,"locations.geojson"),Stop,dao)
 	processLocationGroups(readTxtToDicts(folder,"location_groups.txt"),dao)
-	addData(readTxtToDicts(folder,"stops.txt"),Stop,dao.stops,dao)
+	addData(readTxtToDicts(folder,"stops.txt"),Stop,dao)
 
-	# for stop in dao.stops:
-	# 	print(stop, dao.stops[stop], dao.stops[stop].substops)
+	# for stop in dao.getStops():
+	# 	print(stop, dao.getStops()[stop], dao.getStops()[stop].substops)
 
 
-	addData(readTxtToDicts(folder,"booking_rules.txt"),BookingRuleId,dao.bookingRules,dao)
+	addData(readTxtToDicts(folder,"booking_rules.txt"),BookingRule,dao)
 
 	# for route in dao.routes:
 	# 	print(route, dao.routes[route])
 
 
-	addData(readTxtToDicts(folder,"trips.txt"),Trip,dao.trips,dao)
+	addData(readTxtToDicts(folder,"trips.txt"),Trip,dao)
 
-	# for trip in dao.trips:
-	# 	print(trip, dao.trips[trip])
+	# for trip in dao.getTrips():
+	# 	print(trip, dao.getTrips()[trip])
 
 
-	addData(readTxtToDicts(folder,"stop_times.txt"),StopTime,dao.stop_times,dao)
+	addData(readTxtToDicts(folder,"stop_times.txt"),StopTime,dao)
 
 	# for stoptime in dao.stop_times:
 	# 	print(stoptime, dao.stop_times[stoptime].stop.getId())

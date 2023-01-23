@@ -157,9 +157,9 @@ def generateMapFromDao(dao,color="green"):
 	global m
 	style["fillColor"]=color
 	# folium_map = folium.FeatureGroup(name = dao.getAgencyName())
-	for trip in dao.trips:
+	for trip in dao.getTrips():
 		itt = 0
-		trip = dao.trips[trip]
+		trip = dao.getGtfsObject(Trip,trip)
 		stopsForStopTimes = list()
 		for stop_time in trip.stop_times:
 			stopsForStopTimes.append(getStopCenterListAndAddStopsToMap(trip.stop_times[stop_time],m))
