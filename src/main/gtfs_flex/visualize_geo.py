@@ -45,7 +45,7 @@ def addLegend(text,folium_map=None, address="pycoatextlogo.png"):
 	with open(address, 'rb') as lf:
 		# open in binary mode, read bytes, encode, decode obtained bytes as utf-8 string
 		b64_content = base64.b64encode(lf.read()).decode('utf-8')
-		FloatImage('data:image/png;base64,{}'.format(b64_content), bottom=0, left=0).add_to(folium_map)
+		FloatImage('data:image/png;base64,{}'.format(b64_content), bottom=0, left=0,style_function=lambda x:overflowStyle).add_to(folium_map)
 		# FloatImage(b64_content, bottom=0, left=0).add_to(m)
 
 
@@ -107,19 +107,19 @@ def addStopToMap(stop,folium_map):
 
 
 def addLocationToMap(location,folium_map):
-	printDebug(['adding location(stop) to map: ',location.myId])
-	popup=folium.Popup('location: '+ str(location.myId),show=True,sticky=True)
+	printDebug(['adding location(stop) to map: ',location.getId()])
+	popup=folium.Popup('location: '+ str(location.getId()),show=True,sticky=True)
 	folium.GeoJson(location.initial_data["geometry"],style_function=lambda x:style).add_child(popup).add_to(folium_map)
 
 def getStopCenterListAndAddStopsToMap(stop_time,folium_map):
 	stops = list()
 	st = stop_time
 	stop = st.stop
-	printDebug(['adding stoptime <',st.myId,'>  and stop <', str(st.stop.myId),'> of type: ', str(st.stop.type)])
+	printDebug(['adding stoptime <',st.getId(),'>  and stop <', str(st.stop.getId()),'> of type: ', str(st.stop.type)])
 	if(stop.type==0):
 		addStopToMap(stop,folium_map)
 	elif(stop.type==1):
-		printDebug(['stop ',stop.myId,' is a location group with ', len(stop.substops), ' substops'])
+		printDebug(['stop ',stop.getId(),' is a location group with ', len(stop.substops), ' substops'])
 		for substop in st.stop.substops:
 			stop = st.stop.substops[substop]
 			addLocationToMap(stop,folium_map)
@@ -176,4 +176,5 @@ def save(output_folder):
 	m.save(output_folder)
 
 style = {'fillColor': '#00FFFFFF', 'lineColor': '#00FFFFFF'}
+overflowStyle = {"overflow":"scroll"}
 m = None

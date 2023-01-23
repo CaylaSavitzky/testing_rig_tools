@@ -30,11 +30,11 @@ def addData(data, clazz,dataHolder,dao):
 	for datum in data:
 		datum["backup_id"] = itt
 		datum = clazz(datum,dao)
-		if(dataHolder.get(datum.myId)!=None):
-			print(dataHolder.get(datum.myId).__dict__)
+		if(dataHolder.get(datum.getId())!=None):
+			print(dataHolder.get(datum.getId()).__dict__)
 			print(datum.__dict__)
 			raise Exception("datum ids and equivilents must be unique");
-		dataHolder[datum.myId] = datum
+		dataHolder[datum.getId()] = datum
 		itt += 1
 
 
@@ -46,17 +46,17 @@ def processLocationGroups(data,dao):
 		stop = stops.get(str(dataForStop["location_group_id"]))
 		if(stop==None):
 			stop = Stop(dataForStop,dao)
-			stops[stop.myId] = stop
+			stops[stop.getId()] = stop
 		substopId = dataForStop['location_id']
 		if(substopId!=None):
 			substop = stops.get(substopId)
 			if(substop==None):
-				raise Exception("location group ",self.myId," requires substop ",self.location_id)
+				raise Exception("location group ",self.getId()," requires substop ",self.location_id)
 			else:
-				# print('adding substop ',substopId,' to stop ',stop.myId, '<',stop,'>')
+				# print('adding substop ',substopId,' to stop ',stop.getId(), '<',stop,'>')
 				stop.substops[substopId] = substop
-				substop.parentStops[stop.myId]=stop
-				# print(stop.myId,' has ', len(stop.substops), ' substops')
+				substop.parentStops[stop.getId()]=stop
+				# print(stop.getId(),' has ', len(stop.substops), ' substops')
 
 def readFlexData(folder):
 	dao = Dao()
@@ -83,6 +83,6 @@ def readFlexData(folder):
 	addData(readTxtToDicts(folder,"stop_times.txt"),StopTime,dao.stop_times,dao)
 
 	# for stoptime in dao.stop_times:
-	# 	print(stoptime, dao.stop_times[stoptime].stop.myId)
+	# 	print(stoptime, dao.stop_times[stoptime].stop.getId())
 
 	return dao

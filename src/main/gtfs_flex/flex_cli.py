@@ -33,13 +33,13 @@ def stringifyBookingInfo(rule):
 
 def stringifyStopTimeOutput(st):
 	out = ""
-	# out +="in stop_time " + str(st.myId)
+	# out +="in stop_time " + str(st.getId())
 	if(len(st.stop.substops)>0):
-		out += "<parent location:" + str(st.stop.myId) + "> and "
+		out += "<parent location:" + str(st.stop.getId()) + "> and "
 		for substop in st.stop.substops:
 			out += "<location:" + str(substop) + "> "
 	else:
-		out += "<location:" + str(st.stop.myId) + ">"
+		out += "<location:" + str(st.stop.getId()) + ">"
 	out += "\n which is allowed between the hours of: " + str(st.start_pickup_drop_off_window)
 	out += " and " + str(st.end_pickup_drop_off_window) +".\n"
 	if(isNotNullOrNan(st.pickup_booking_rule_id)):
@@ -87,7 +87,7 @@ if __name__ == "__main__":
 	# 	out = print("\n",trip, dao.trips[trip])
 	# 	for stop_time in dao.trips[trip].stop_times:
 	# 		st = dao.trips[trip].stop_times[stop_time]
-	# 		print(str(st.myId), str(st.stop.myId))
+	# 		print(str(st.getId()), str(st.stop.getId()))
 
 	for out in getTravelInfoForTripsStrings(dao):
 		print(out+"\n")

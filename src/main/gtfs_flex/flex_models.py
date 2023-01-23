@@ -1,6 +1,17 @@
-from utilities import *
+"""
+models for flex classes.
+add more as needed.
+"""
 
-class BookingRuleId:
+from utilities import *
+from abc import ABC, abstractmethod
+
+class GtfsObject:
+	@abstractmethod
+	def getId(self):
+		pass
+
+class BookingRuleId(GtfsObject):
 	possibleIds = ["booking_rule_id"]
 	def __init__(self, initial_data,dao):
 		self.trips = dict()
@@ -9,9 +20,11 @@ class BookingRuleId:
 			setattr(self,key,datum)
 			if (key in self.possibleIds):
 				self.myId = datum
+	def getId(self):
+		return self.myId
 	
 
-class Trip:
+class Trip(GtfsObject):
 	possibleIds = ["trip_id"]
 	def __init__(self, initial_data,dao):
 		self.stop_times = dict()
@@ -31,9 +44,11 @@ class Trip:
 		# 	print("could not find route " + self.route_id)
 		# 	raise Exception("trips must have route")
 		# self.route.trips[self.myId]=self
+	def getId(self):
+		return self.myId
 	
 
-class StopTime:
+class StopTime(GtfsObject):
 	possibleIds = ["backup_id"]
 	def __init__(self, initial_data,dao):		
 		for key in initial_data:
@@ -65,11 +80,13 @@ class StopTime:
 			if(self.drop_off_booking_rule==None):
 				raise Exception("Stoptime {} {} claims to have associated drop_off booking rule {} but none could be found".format(self,self.myId,self.drop_off_booking_rule_id) )
 			self.drop_off_booking_rule.trips[self.myId]=self
+	def getId(self):
+		return self.myId
 
 
 
 # somthing that turns core id into ID
-class Stop:
+class Stop(GtfsObject):
 	possibleIds = ["stop_id","location_group_id","id"]
 	def __init__(self, initial_data,dao):
 		self.substops = dict()
@@ -99,6 +116,8 @@ class Stop:
 			print(firstCord)
 			out.append(invertedCord)
 		return out
+	def getId(self):
+		return self.myId
 	
 
 class Dao:
@@ -106,6 +125,9 @@ class Dao:
 	stop_times = dict()
 	trips = dict()
 	bookingRules = dict()
+	def getGtfsObject(type,id):
+		raise Exception("implement getGtfsObject")
+
 	def getAgencyName(self):
 		return 'temp agencyname'
 

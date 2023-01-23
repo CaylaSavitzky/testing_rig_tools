@@ -25,9 +25,22 @@ solutions:
 			-B add plugin to package?
 		- allow text scrolling
 		- allow text to be dynamically sized
+			or bare minimum have this be sized at creation to match the screen of the computer making the image ;.; pls not that. it's garbage solution. folium is mean.
+	3 - 
+		- make a new class based on: https://github.com/python-visualization/folium/blob/main/folium/plugins/float_image.py
+		- make it a div, and make overflow: scroll an option
+		- textbox or image inside or w/e
 
 problem:
-	regular stop locations which do not travel to flex data should have better printed updates
+	stops are layered weirdly so they're hard to click on:
+solution:
+	- make getStopCenterListAndAddStopsToMap not add stops but just process info and make a list of stops
+	- get max&min x and y of all locations (bounding box)
+	- sort stops based on:
+		- does one box cover the other by more than n percent but the covering relationship is not reciprocal
+		- then relative size w/ a percentage
+		- bottom right to top left (back up option for truely garbage data which does happen)
+	- print stops
 
 feature:
 	multiple agencies that work by layers
