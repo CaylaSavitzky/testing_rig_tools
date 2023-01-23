@@ -13,7 +13,6 @@ import base64
 JENKITY_PAGE_WIDTH = 920
 
 
-
 """
 an incredibly messy method where we convert text into an image and then
 cover half the page with that image because there are no other pre-existing 
@@ -74,9 +73,9 @@ def addLinesToMap(locationsForStopTimes,folium_map):
 		# print(baseCords)
 
 
-def addMarker(location,folium_map):
+def addMarker(latLon,folium_map):
 	folium.map.Marker(
-    [34.0302, -118.2352],
+    [latLon[0], latLon[1]],
     icon=DivIcon(
         icon_size=(150,36),
         icon_anchor=(0,0),
@@ -88,7 +87,7 @@ def addMarker(location,folium_map):
 	iframe = folium.IFrame(text, width=700, height=450)
 	popup = folium.Popup(iframe, max_width=3000)
 
-	Text = folium.Marker(location=[lat,lon], popup=popup,
+	Text = folium.Marker(location=[latLon[0], latLon[1]], popup=popup,
 	                     icon=folium.Icon(icon_color='green'))
 	m.add_child(text)
 
@@ -97,30 +96,14 @@ def addStopToMap(stop,folium_map):
 	folium.Circle(stop.getCenter()[0]).add_to(folium_map)
 
 
+def addGeoJsonToMapWithChild(geoJson,child,folium_map,style = None):
+	folium.GeoJson(geoJson,style_function=lambda x:style).add_child(child).add_to(folium_map)
 
-def addLocationToMap(location,folium_map):
-	printDebug(['adding location(stop) to map: ',location.getId()])
-	popup=folium.Popup('location: '+ str(location.getId()),show=True,sticky=True)
-	folium.GeoJson(location.initial_data["geometry"],style_function=lambda x:style).add_child(popup).add_to(folium_map)
-
-def getStopCenterListAndAddStopsToMap(stop_time,folium_map):
-	stops = list()
-	st = stop_time
-	stop = st.stop
-	printDebug(['adding stoptime <',st.getId(),'>  and stop <', str(st.stop.getId()),'> of type: ', str(st.stop.type)])
-	if(stop.type==0):
-		addStopToMap(stop,folium_map)
-	elif(stop.type==1):
-		printDebug(['stop ',stop.getId(),' is a location group with ', len(stop.substops), ' substops'])
-		for substop in st.stop.substops:
-			stop = st.stop.substops[substop]
-			addLocationToMap(stop,folium_map)
-	else:
-		addLocationToMap(stop,folium_map)
-	return stop_time.stop.getCenter()
+def createStickyPopup(text):
+	return folium.Popup(text,show=True,sticky=True)
 
 
-def showMousePosition(folium_map):
+def enableShowMousePosition(folium_map):
 	formatter = "function(num) {return L.Util.formatNum(num, 3) + ' º ';};"
 	MousePosition(
 		position="bottomright",
@@ -145,28 +128,4 @@ def showMousePosition(folium_map):
 	
 
 
-def generateMapFromDao(dao,color="green"):
-	global m
-	style["fillColor"]=color
-	# folium_map = folium.FeatureGroup(name = dao.getAgencyName())
-	for trip in dao.getTrips():
-		itt = 0
-		trip = dao.getGtfsObject(Trip,trip)
-		stopsForStopTimes = list()
-		for stop_time in trip.stop_times:
-			stopsForStopTimes.append(getStopCenterListAndAddStopsToMap(trip.stop_times[stop_time],m))
-		printDebug(['stops for stoptimes: ',stopsForStopTimes])
-		addLinesToMap(stopsForStopTimes,m)
 
-def start(x=42.825182,y=-103.000766):
-	global m
-	m = folium.Map(location=[x,y], zoom_start=10)
-	showMousePosition(m)
-
-def save(output_folder):
-	global m 
-	m.save(output_folder)
-
-style = {'fillColor': '#00FFFFFF', 'lineColor': '#00FFFFFF'}
-overflowStyle = {"overflow":"scroll"}
-m = None

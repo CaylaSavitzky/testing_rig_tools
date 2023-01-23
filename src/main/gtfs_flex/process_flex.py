@@ -1,6 +1,6 @@
 from flex_cli import *
-from visualize_geo import *
 from zipfile import ZipFile
+from daovisualizer import *
 import shutil
 
 
@@ -18,8 +18,8 @@ unzip(file,data_path)
 color = 'red'
 dao = DaoImpl()
 FlexReader.readFlexDirectoryIntoDao(data_path,dao)
-start()
-generateMapFromDao(dao,color = color)
+daoVisualizer = DaoVisualizer()
+daoVisualizer.generateMapFromDao(dao,color = color)
 out = ""
 for text in getTravelInfoForTripsStrings(dao):
 		out+=text+"\n"
@@ -28,7 +28,7 @@ if(len(sys.argv)>2):
 	print(out)	
 else:
 	addLegend(out,address=data_path+'-image.png')
-save(data_path+"-map.html")
+daoVisualizer.save(data_path+"-map.html")
 
 shutil.rmtree(data_path)
 
