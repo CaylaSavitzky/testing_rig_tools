@@ -21,6 +21,18 @@ class GtfsObject:
 	@abstractmethod
 	def __init__(self, initial_data,dao):
 		pass
+	def getOrMakeDictForAttr(self,attr):
+		if(not hasattr(self,"attrDicts")):
+			self.attrDicts = dict()
+		if(self.attrDicts.get(attr)==None):
+			self.attrDicts[attr] = dict()
+		return self.attrDicts.get(attr)
+	def putDictForAttr(self,attr,dictForAttr):
+		if(not hasattr(self,"attrDicts")):
+			self.attrDicts = dict()
+		if(not self.attrDicts.get(attr)==None):
+			raise Exception("will not overwrite dict -- {}. dict already exists and has {} entries".format(attr,len(self.attrDicts.get(attr))))
+		self.attrDicts[attr]=dictForAttr
 
 class BookingRule(GtfsObject):
 	possibleIds = ["booking_rule_id"]
@@ -81,16 +93,10 @@ class StopTime(GtfsObject):
 		# print("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
 		# printShortHandTripInfo(self.trip)
 		if(isNotNullOrNan(self.pickup_booking_rule_id)):
-			self.pickup_booking_rule=dao.getGtfsObject(BookingRule,self.pickup_booking_rule_id)
-			if(self.pickup_booking_rule==None):
-				raise Exception("Stoptime {} {} claims to have associated pickup booking rule {} but none could be found".format(self,self.myId,self.pickup_booking_rule_id) )
-			self.pickup_booking_rule.trips[self.myId]=self
-		
+			addOneToManyRelationship(self,"pickup_booking_rule_id",dao,BookingRule,raiseException=True)
+			self.pickup_booking_rule=dao.getGtfsObject(BookingRule,self.pickup_booking_rule_id)		
 		if(isNotNullOrNan(self.drop_off_booking_rule_id)):
-			self.drop_off_booking_rule=dao.getGtfsObject(BookingRule,self.drop_off_booking_rule_id)
-			if(self.drop_off_booking_rule==None):
-				raise Exception("Stoptime {} {} claims to have associated drop_off booking rule {} but none could be found".format(self,self.myId,self.drop_off_booking_rule_id) )
-			self.drop_off_booking_rule.trips[self.myId]=self
+			addOneToManyRelationship(self,"drop_off_booking_rule_id",dao,BookingRule)
 	def getId(self):
 		return self.myId
 
@@ -101,16 +107,15 @@ class Stop(GtfsObject):
 	possibleIds = ["stop_id","location_group_id","id"]
 	def __init__(self, initial_data,dao):
 		self.substops = dict()
+		self.putDictForAttr("substops",self.substops)
 		for key in initial_data:
 			if (key in self.possibleIds):
 				self.type = self.possibleIds.index(key)
 				self.myId = str(initial_data[key])
-				# if(self.type==0):
-				# 	print(type(self.myId))
-				# 	print(self.myId,self)
 			setattr(self,key,initial_data[key])
 		self.initial_data = initial_data
 		self.parentStops = dict()
+		self.putDictForAttr("parentStops",self.parentStops)
 
 	def getCenter(self):
 		out = list()
@@ -130,6 +135,8 @@ class Stop(GtfsObject):
 	def getId(self):
 		return self.myId
 	
+
+
 class Dao:
 	def __contains__(self,item):
 		raise Exception("use getDict instead")
@@ -158,6 +165,9 @@ class Dao:
 		pass
 	@abstractmethod
 	def readFlexDirectory(self):
+		pass
+	@abstractmethod
+	def getContainer(self,objType):
 		pass
 
 class DaoImpl:
@@ -189,6 +199,11 @@ class DaoImpl:
 		return self.data[Stop]
 	def getStopTimes(self):
 		return self.data[stop_times]
+	def getContainer(self,objType):
+		return self.data.get(objType)
+
+
+
 
 def printShortHandTripInfo(trip):
 	out = print("\n",trip.myId, trip)
