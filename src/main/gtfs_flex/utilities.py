@@ -3,34 +3,31 @@ Mishmash of utilities that it seemed odd to keep in one place
 """
 
 
-def addManyToManyRelationship(obj,attr,dao,containerType=None):
-	relatedObj = addManytoMeRelationship(obj,attr,dao,containerType)
+def addManyToManyRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True):
+	relatedObj = getRelatedObject(obj,attr,dao,containerType)
+	attr = removeIdIfTrue(attr,removeId)
+	relatedObj.getOrMakeDictForAttr(newattr or attr)[obj.getId]=obj
 	obj.getOrMakeDictForAttr(attr)[relatedObj.getId]=relatedObj
 
-def addOneToManyRelationship(obj,attr,dao,containerType=None,raiseException=False):
-	relatedObj = addManytoMeRelationship(obj,attr,dao,containerType)
-	if(relatedObj==None and raiseException):
-		raise Exception("{} {} {} claims to have associated {} {} but none could be found".format(type(self),self,self.myId,containerType,getattr(self,attr)))
-	# print("object: {}; attr: {}; relatedObj: {}".format(obj,attr,relatedObj))
-	setattr(obj,attr,relatedObj)
-
-def addOneToOneRelationship(obj,attr,dao,containerType=None):
+def addOneToManyRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True):
 	relatedObj = getRelatedObject(obj,attr,dao,containerType)
-	setattr(obj,attr,relatedObj)
-	setattr(relatedObj,attr,obj)
-
-
-def addManytoMeRelationship(obj,attr,dao,containerType=None):
-	relatedObj = getRelatedObject(obj,attr,dao,containerType)
+	attr = removeIdIfTrue(attr,removeId)
 	relatedObj.getOrMakeDictForAttr(attr)[obj.getId]=obj
-	return relatedObj
+	setattr(obj,attr,relatedObj)
 
-def addOneToMeRelationship(obj,attr,dao,containerType=None):
+def addOneToOneRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True):
 	relatedObj = getRelatedObject(obj,attr,dao,containerType)
+	attr = removeIdIfTrue(attr,removeId)
+	setattr(obj,attr,relatedObj)
 	setattr(relatedObj,attr,obj)
-	return relatedObj
 
-def getRelatedObject(obj,attr,dao,containerType=None):
+
+def removeIdIfTrue(attr,removeId):
+	if(removeId):
+		attr=attr.replace("_id","")
+	return attr
+
+def getRelatedObject(obj,attr,dao,containerType=None,raiseException=False):
 	if(containerType==None):
 		containerType = type(obj)
 	if(hasattr(obj,attr)):
@@ -38,7 +35,10 @@ def getRelatedObject(obj,attr,dao,containerType=None):
 			container = dao.getContainer(containerType)
 			if(container==None):
 				raise Exception("no container of type: {} in dao".format(containerType))
-			return container.get(getattr(obj,attr))
+			relatedObj = container.get(getattr(obj,attr))
+			if(relatedObj==None and raiseException):
+				raise Exception("{} {} {} claims to have associated {} {} but none could be found".format(type(self),self,self.myId,containerType,getattr(self,attr)))
+			return relatedObj
 
 		
 

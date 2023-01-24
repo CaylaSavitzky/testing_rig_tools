@@ -51,22 +51,13 @@ class Trip(GtfsObject):
 	possibleIds = ["trip_id"]
 	def __init__(self, initial_data,dao):
 		self.stop_times = dict()
+		self.putDictForAttr("trip",self.stop_times)
 		# print("creating trip from " + str(initial_data))
 		for key in initial_data:
 			datum = initial_data[key]
 			if (key in self.possibleIds):
 				self.myId = datum
-			if (key == "stop_id"):
-				self.stop=dao.getGtfsObject(Stop,datum)
-				if (self.stop==None):
-					raise Exception("could not find stop " + datum)
 			setattr(self,key,datum)
-		# self.route=dao.routes.get(self.route_id)
-		# # print(dao.routes.get(self.route_id))
-		# if (self.route==None):
-		# 	print("could not find route " + self.route_id)
-		# 	raise Exception("trips must have route")
-		# self.route.trips[self.myId]=self
 	def getId(self):
 		return self.myId
 	
@@ -80,21 +71,13 @@ class StopTime(GtfsObject):
 			if (key in self.possibleIds):
 				self.myId = datum
 		self.stop_id = str(self.stop_id)
-		self.stop=dao.getGtfsObject(Stop,self.stop_id)
-		if (self.stop==None):
-			print("could not find stop " + str(self.stop_id))
-			raise Exception("stop_times must have stop")
-		self.trip=dao.getGtfsObject(Trip,self.trip_id)
-		if (self.trip==None):
-			print("could not find trip " + self.trip_id)
-			raise Exception("stop_times must have trip")
-		self.trip.stop_times[self.stop_sequence]=self
+		addOneToManyRelationship(self,"stop_id",dao,Stop)
+		addOneToManyRelationship(self,"trip_id",dao,Trip)
 		# print("\n\n")
 		# print("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
 		# printShortHandTripInfo(self.trip)
 		if(isNotNullOrNan(self.pickup_booking_rule_id)):
-			addOneToManyRelationship(self,"pickup_booking_rule_id",dao,BookingRule,raiseException=True)
-			self.pickup_booking_rule=dao.getGtfsObject(BookingRule,self.pickup_booking_rule_id)		
+			addOneToManyRelationship(self,"pickup_booking_rule_id",dao,BookingRule)
 		if(isNotNullOrNan(self.drop_off_booking_rule_id)):
 			addOneToManyRelationship(self,"drop_off_booking_rule_id",dao,BookingRule)
 	def getId(self):
