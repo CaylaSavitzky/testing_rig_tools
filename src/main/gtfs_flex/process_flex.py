@@ -27,7 +27,7 @@ if(len(sys.argv)>2):
 	# probably should add some options here
 	print(out)	
 else:
-	addLegend(out,address=data_path+'-image.png')
+	addLegend(out,daoVisualizer.getMap())
 daoVisualizer.save(data_path+"-map.html")
 
 shutil.rmtree(data_path)

@@ -20,7 +20,7 @@ class DaoVisualizer:
 			for stop_time in trip.stop_times:
 				stopsForStopTimes.append(DaoVisualizer.getStopCenterListAndAddStopsToMap(trip.stop_times[stop_time],self.m))
 			printDebug(['stops for stoptimes: ',stopsForStopTimes])
-			addLinesToMap(stopsForStopTimes,self.m)
+			self.addLinesToMap(stopsForStopTimes,self.m)
 
 	def save(self,output_folder):
 		self.m.save(output_folder)
@@ -42,7 +42,7 @@ class DaoVisualizer:
 			DaoVisualizer.addLocationToMap(stop,folium_map)
 		return stop_time.stop.getCenter()
 		
-	def addLinesToMap(locationsForStopTimes,folium_map):
+	def addLinesToMap(self,locationsForStopTimes,folium_map):
 		polyLineCords= list()
 		baseCords = list()
 		for stop_time_locations in locationsForStopTimes:
@@ -65,5 +65,7 @@ class DaoVisualizer:
 		popup = createStickyPopup('location: {}'.format(location.getId()))
 		addGeoJsonToMapWithChild(location.initial_data["geometry"],popup,folium_map,style = style)
 
+	def getMap(self):
+		return self.m
 style = {'fillColor': '#00FFFFFF', 'lineColor': '#00FFFFFF'}
 overflowStyle = {"overflow":"scroll"}
