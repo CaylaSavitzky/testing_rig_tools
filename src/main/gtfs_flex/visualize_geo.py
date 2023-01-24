@@ -23,25 +23,10 @@ def addLegend(text,folium_map=None):
 	if(folium_map == None):
 		global m
 		folium_map = m
-	# global JENKITY_PAGE_WIDTH
-	# W, H = (JENKITY_PAGE_WIDTH,900)
-	# im = Image.new("RGBA",(W,H))
-	# draw = ImageDraw.Draw(im)
-	# msg = text
-	# w, h = draw.textsize(msg)
-	# fnt = ImageFont.truetype('/Library/Fonts/Arial.ttf', 18)
-	# draw.rectangle(((0,0),(W,H)), fill=(0,0,0)+(255,))
-	# draw.multiline_text((20,0), msg, font=fnt,fill=(255, 255, 255))
-	# im.save(address, "PNG")
-	# print(address)
-	# with open(address, 'rb') as lf:
-	# 	# open in binary mode, read bytes, encode, decode obtained bytes as utf-8 string
-	# 	b64_content = base64.b64encode(lf.read()).decode('utf-8')
-	# 	FloatImage('data:image/png;base64,{}'.format(b64_content), bottom=0, left=0,style_function=lambda x:overflowStyle).add_to(folium_map)
-	# 	# FloatImage(b64_content, bottom=0, left=0).add_to(m)
 	text=text.replace("<","&lt;").replace(">","&gt;")
-	out = '<p style="padding: 24px; white-space: pre-wrap; font-size : 24; background-color : black; color : white;">{}</p>'.format(text)
-	FloatDiv(out,left=0,bottom=0).add_to(folium_map)
+	out = '<p">{}</p>'.format(text)
+	style={"padding" : "24px","white-space": "pre-wrap", "font-size" : "24px", "background-color" : "black", "color" : "white"}
+	FloatDiv(out,left=0,bottom=0,style_function=lambda x:style).add_to(folium_map)
 
 
 
