@@ -8,11 +8,13 @@ from flex_core_models import *
 
 class Agency(GtfsObject):
 	def __init__(self, initial_data,agencies,dao):
+		contentList = list()
 		for key in initial_data:
 			datum = initial_data[key]
 			setattr(self,key,datum)
-		self.setId(GtfsObjId(self.agency_id,initial_data.__hash__()))
-		agency[agency_id]=agency_id
+			contentList.append(str(datum))
+		self.setId(GtfsObjId(self.agency_id,"".join(contentList).__hash__()))
+		agencies[self.agency_id]=self.agency_id
 
 class BookingRule(GtfsObject):
 	possibleIds = ["booking_rule_id"]
@@ -90,6 +92,7 @@ class Stop(GtfsObject):
 
 class DaoImpl:
 	data={
+	Agency:dict(),
 	Stop:dict(),
 	StopTime:dict(),
 	Trip:dict(),

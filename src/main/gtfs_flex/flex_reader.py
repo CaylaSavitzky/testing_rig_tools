@@ -62,8 +62,9 @@ class FlexReader():
 
 
 	def readFlexDirectoryIntoDao(folder,dao, debug=False):
-		agency = {"agency":"agency"}
-		# FlexReader.addData(readTxtToDicts(folder,"agency.txt"),Agency,agency,dao)
+		agency = dict()
+		# agency = {"agency":"agency"}
+		FlexReader.addData(readTxtToDicts(folder,"agency.txt"),Agency,agency,dao)
 
 		FlexReader.addData(readJsonToDicts(folder,"locations.geojson"),Stop,agency,dao)
 		FlexReader.processLocationGroups(readTxtToDicts(folder,"location_groups.txt"),agency,dao)

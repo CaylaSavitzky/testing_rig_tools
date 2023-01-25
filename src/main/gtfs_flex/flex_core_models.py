@@ -27,7 +27,7 @@ base for all other gtfs models
 '''
 class GtfsObject:
 	def getId(self):
-		return myId
+		return self.myId
 
 	def setId(self, agency: str, myId : str):
 		self.myId = "{}---{}".format(agency,myId)
