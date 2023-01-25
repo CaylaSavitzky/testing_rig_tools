@@ -30,11 +30,11 @@ class DaoVisualizer:
 		stops = list()
 		st = stop_time
 		stop = st.stop
-		printDebug(['adding stoptime <',st.getId(),'>  and stop <', str(st.stop.getId()),'> of type: ', str(st.stop.type)])
+		printDebug(['adding stoptime <',st.getId().getId(),'>  and stop <', str(st.stop.getId().getId()),'> of type: ', str(st.stop.type)])
 		if(stop.type==0):
 			DaoVisualizer.addStopToMap(stop,folium_map)
 		elif(stop.type==1):
-			printDebug(['stop ',stop.getId(),' is a location group with ', len(stop.substops), ' substops'])
+			printDebug(['stop ',stop.getId().getId(),' is a location group with ', len(stop.substops), ' substops'])
 			for substop in st.stop.substops:
 				stop = st.stop.substops[substop]
 				DaoVisualizer.addLocationToMap(stop,folium_map)
@@ -61,8 +61,8 @@ class DaoVisualizer:
 			# print(baseCords)
 
 	def addLocationToMap(location,folium_map):
-		printDebug(['adding location(stop) to map: ',location.getId()])
-		popup = createStickyPopup('location: {}'.format(location.getId()))
+		printDebug(['adding location(stop) to map: ',location.getId().getId()])
+		popup = createStickyPopup('location: {}'.format(location.getId().getId()))
 		addGeoJsonToMapWithChild(location.initial_data["geometry"],popup,folium_map,style = style)
 
 	def getMap(self):

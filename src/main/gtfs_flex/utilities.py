@@ -1,22 +1,22 @@
 """
 Mishmash of utilities that it seemed odd to keep in one place
 """
+from flex_core_models import *
 
-
-def addManyToManyRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True):
-	relatedObj = getRelatedObject(obj,attr,dao,containerType)
+def addManyToManyRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True,agency=None):
+	relatedObj = getRelatedObject(obj,attr,dao,containerType,raiseException=raiseException,agency=agency)
 	attr = removeIdIfTrue(attr,removeId)
 	relatedObj.getOrMakeDictForAttr(newattr or attr)[obj.getId]=obj
 	obj.getOrMakeDictForAttr(attr)[relatedObj.getId]=relatedObj
 
-def addOneToManyRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True):
-	relatedObj = getRelatedObject(obj,attr,dao,containerType)
+def addOneToManyRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True,agency=None):
+	relatedObj = getRelatedObject(obj,attr,dao,containerType,raiseException=raiseException,agency=agency)
 	attr = removeIdIfTrue(attr,removeId)
 	relatedObj.getOrMakeDictForAttr(attr)[obj.getId]=obj
 	setattr(obj,attr,relatedObj)
 
-def addOneToOneRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True):
-	relatedObj = getRelatedObject(obj,attr,dao,containerType)
+def addOneToOneRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True,agency=None):
+	relatedObj = getRelatedObject(obj,attr,dao,containerType,raiseException=raiseException,agency=agency)
 	attr = removeIdIfTrue(attr,removeId)
 	setattr(obj,attr,relatedObj)
 	setattr(relatedObj,attr,obj)
@@ -27,7 +27,8 @@ def removeIdIfTrue(attr,removeId):
 		attr=attr.replace("_id","")
 	return attr
 
-def getRelatedObject(obj,attr,dao,containerType=None,raiseException=False):
+def getRelatedObject(obj,attr,dao,containerType=None,raiseException=False,agency = None):
+	agency = agency or obj.getId().getAgency()
 	if(containerType==None):
 		containerType = type(obj)
 	if(hasattr(obj,attr)):
@@ -35,9 +36,10 @@ def getRelatedObject(obj,attr,dao,containerType=None,raiseException=False):
 			container = dao.getContainer(containerType)
 			if(container==None):
 				raise Exception("no container of type: {} in dao".format(containerType))
-			relatedObj = container.get(getattr(obj,attr))
+			relatedObjId = GtfsObjId(agency,getattr(obj,attr))
+			relatedObj = container.get(relatedObjId)
 			if(relatedObj==None and raiseException):
-				raise Exception("{} {} {} claims to have associated {} {} but none could be found".format(type(self),self,self.myId,containerType,getattr(self,attr)))
+				raise Exception("{} {} {} claims to have associated {} {} but none could be found".format(type(obj),obj,obj.getId().getValue(),containerType,relatedObjId))
 			return relatedObj
 
 		

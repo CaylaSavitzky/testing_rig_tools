@@ -35,11 +35,11 @@ def stringifyStopTimeOutput(st):
 	out = ""
 	# out +="in stop_time " + str(st.getId())
 	if(len(st.stop.substops)>0):
-		out += "<parent location:" + str(st.stop.getId()) + "> and "
+		out += "<parent location:" + str(st.stop.getId().getId()) + "> and "
 		for substop in st.stop.substops:
-			out += "<location:" + str(substop) + "> "
+			out += "<location:" + str(substop.getId().getId()) + "> "
 	else:
-		out += "<location:" + str(st.stop.getId()) + ">"
+		out += "<location:" + str(st.stop.getId().getId()) + ">"
 	out += "\n which is allowed between the hours of: " + str(st.start_pickup_drop_off_window)
 	out += " and " + str(st.end_pickup_drop_off_window) +".\n"
 	if(isNotNullOrNan(st.pickup_booking_rule_id)):
@@ -54,7 +54,7 @@ def stringifyStopTimeOutput(st):
 def getTravelInfoForTripsStrings(dao):
 	outputStringsContainer = list()
 	for trip in dao.getTrips():
-		out = "for trip-{}: \n".format(trip)
+		out = "for trip-{}: \n".format(trip.getId())
 		itt = 0
 		trip = dao.getGtfsObject(Trip,trip)
 		for stop_time in trip.stop_times:

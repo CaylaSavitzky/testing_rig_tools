@@ -4,59 +4,35 @@ add more as needed.
 """
 
 from utilities import *
-from abc import ABC, abstractmethod
-
-class Cord(list):
-	def __init__(self, *args, **kwargs):
-		list.__init__(self, args[0])
-
-
-'''
-base for all other gtfs models
-'''
-class GtfsObject:
-	@abstractmethod
-	def getId(self):
-		pass
-	@abstractmethod
-	def __init__(self, initial_data,dao):
-		pass
-	def getOrMakeDictForAttr(self,attr):
-		if(not hasattr(self,"attrDicts")):
-			self.attrDicts = dict()
-		if(self.attrDicts.get(attr)==None):
-			self.attrDicts[attr] = dict()
-		return self.attrDicts.get(attr)
-	def putDictForAttr(self,attr,dictForAttr):
-		if(not hasattr(self,"attrDicts")):
-			self.attrDicts = dict()
-		if(not self.attrDicts.get(attr)==None):
-			raise Exception("will not overwrite dict -- {}. dict already exists and has {} entries".format(attr,len(self.attrDicts.get(attr))))
-		self.attrDicts[attr]=dictForAttr
+from flex_core_models import *
 
 class BookingRule(GtfsObject):
 	possibleIds = ["booking_rule_id"]
-	def __init__(self, initial_data,dao):
+	def __init__(self, initial_data,agency,dao):
 		self.trips = dict()
 		for key in initial_data:
 			datum = initial_data[key]
 			setattr(self,key,datum)
 			if (key in self.possibleIds):
-				self.myId = datum
+				self.setId(GtfsObjId(agency,datum))
 	def getId(self):
 		return self.myId
 	
 
 class Trip(GtfsObject):
 	possibleIds = ["trip_id"]
-	def __init__(self, initial_data,dao):
+	def __init__(self, initial_data,agency,dao):
 		self.stop_times = dict()
 		self.putDictForAttr("trip",self.stop_times)
 		# print("creating trip from " + str(initial_data))
 		for key in initial_data:
 			datum = initial_data[key]
 			if (key in self.possibleIds):
-				self.myId = datum
+				self.setId(GtfsObjId(agency,datum))
+			if (key == "stop_id"):
+				self.stop=dao.getGtfsObject(Stop,datum)
+				if (self.stop==None):
+					raise Exception("could not find stop " + datum)
 			setattr(self,key,datum)
 	def getId(self):
 		return self.myId
@@ -64,12 +40,12 @@ class Trip(GtfsObject):
 
 class StopTime(GtfsObject):
 	possibleIds = ["backup_id"]
-	def __init__(self, initial_data,dao):		
+	def __init__(self, initial_data,agency,dao):		
 		for key in initial_data:
 			datum = initial_data[key]
 			setattr(self,key,datum)
 			if (key in self.possibleIds):
-				self.myId = datum
+				self.setId(GtfsObjId(agency,datum))
 		self.stop_id = str(self.stop_id)
 		addOneToManyRelationship(self,"stop_id",dao,Stop)
 		addOneToManyRelationship(self,"trip_id",dao,Trip)
@@ -88,15 +64,15 @@ class StopTime(GtfsObject):
 # somthing that turns core id into ID
 class Stop(GtfsObject):
 	possibleIds = ["stop_id","location_group_id","id"]
-	def __init__(self, initial_data,dao):
-		self.substops = dict()
-		self.putDictForAttr("substops",self.substops)
+	def __init__(self, initial_data,agency,dao):
 		for key in initial_data:
 			if (key in self.possibleIds):
 				self.type = self.possibleIds.index(key)
-				self.myId = str(initial_data[key])
+				self.setId(GtfsObjId(agency,str(initial_data[key])))
 			setattr(self,key,initial_data[key])
 		self.initial_data = initial_data
+		self.substops = dict()
+		self.putDictForAttr("substops",self.substops)
 		self.parentStops = dict()
 		self.putDictForAttr("parentStops",self.parentStops)
 
@@ -120,39 +96,6 @@ class Stop(GtfsObject):
 	
 
 
-class Dao:
-	def __contains__(self,item):
-		raise Exception("use getDict instead")
-		if(not type(item) in self.data):
-			return False
-		if(not item in self.data.get(type(item))):
-			return False
-		return True
-	@abstractmethod
-	def getGtfsObject(self,objType,id):
-		pass
-	@abstractmethod
-	def addGftsObject(self,obj):
-		pass
-	@abstractmethod
-	def getTrips(self):
-		pass
-	@abstractmethod
-	def getStops(self):
-		pass
-	@abstractmethod
-	def getStopTimes(self):
-		pass
-	@abstractmethod
-	def getAgencyName(self):
-		pass
-	@abstractmethod
-	def readFlexDirectory(self):
-		pass
-	@abstractmethod
-	def getContainer(self,objType):
-		pass
-
 class DaoImpl:
 	data={
 	Stop:dict(),
@@ -166,10 +109,14 @@ class DaoImpl:
 		if(not item in self.data.get(type(item))):
 			return False
 		return True
-	def getGtfsObject(self,objType,id):
+	def getGtfsObject(self,objType,gtfsId):
 		if(not objType in self.data):
 			raise Exception("dao cannot process objects of type {}".format(objType))
-		return self.data.get(objType).get(id)
+		return self.data.get(objType).get(gtfsId)
+	# def getGtfsObject(self,objType,agency,objId):
+	# 	if(not objType in self.data):
+	# 		raise Exception("dao cannot process objects of type {}".format(objType))
+	# 	return self.data.get(objType).get(GtfsObjId(agency,objId))
 	def addGftsObject(self,obj):
 		if(not type(obj) in self.data):
 			raise Exception("dao cannot process objects of type {}".format(type(obj)))
