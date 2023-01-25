@@ -5,29 +5,13 @@ okay so:
 problem:
 	this whole thing is a garbage mess of scripts
 solution:
-	- better self identifier for models
 	- dao should take class and id and return val & accept obj and put into right location
 		- would it make sense to have the dao handle making reciprocal relationships btwn relivant classes? tbh i don't think so, that feels wrong for access obj
-	- there are too many situations where things other than objects are being passed around when it *really* should just be objects... <.< looking at you visualize_geo.py
+	- gtfsObjs shouldn't have other objs attatched but instead identifiers (maybe a list of identifiers)
+	- dao should be able to consume a list of identifiers 
+	- maybe dao should be able to consume objId and property and if tthe obj has that property/list it finds the list and saves that info for precomputed? not worth it actually, assume more cycles than memory
+	- maybe non-identifiers are only be created by the dao obj, and then there's a good spot to raise exception if someone tries to make two of the same
 
-problem:
-	gross sidescreen image
-solutions:
-	1 -
-		- add arrows for trips (directionality feature)
-		- add tooltip or popup that start as on with traveltimes
-		- maintain description as backup in associated txt?
-	2 -
-		- add a better way to float text
-			-A modify the html after map is saved
-			-B add plugin to package?
-		- allow text scrolling
-		- allow text to be dynamically sized
-			or bare minimum have this be sized at creation to match the screen of the computer making the image ;.; pls not that. it's garbage solution. folium is mean.
-	3 - 
-		- make a new class based on: https://github.com/python-visualization/folium/blob/main/folium/plugins/float_image.py
-		- make it a div, and make overflow: scroll an option
-		- textbox or image inside or w/e
 
 problem:
 	stops are layered weirdly so they're hard to click on:
@@ -39,6 +23,16 @@ solution:
 		- then relative size w/ a percentage
 		- bottom right to top left (back up option for truely garbage data which does happen)
 	- print stops
+
+problem:
+	can't just click on the the map for latlon in many situations
+solution:
+	not sure this will work, but can i make a top layer that's empty to click on?
+
+problem:
+	doesn't handle a single gtfs with multiple agencies, or one gtfs referencing other agencies 
+solution:
+	minor fix in obj creation, but would be easier and better if first updated all obj creation methods to reference super and put that info there
 
 feature:
 	multiple agencies that work by layers

@@ -35,9 +35,21 @@ class GtfsObject:
 	def setId(self, myId : GtfsObjId):
 		self.myId = myId
 
-	@abstractmethod
-	def __init__(self, initial_data,agency,dao):
-		pass
+	def __init__(self, initial_data,agencies,dao):
+		for key in initial_data:
+			datum = initial_data[key]
+			setattr(self,key,datum)
+			if (key in self.possibleIds):
+				self.tmpId = datum
+		if(len(agencies)==1):
+			self.setId(GtfsObjId(list(agencies.values())[0],self.tmpId))
+		elif(len(agencies)==0):
+			raise Exception("no agencies in gtfs")
+			setattr(self,key,datum)
+		else:
+			raise Exception("multiple agencies in gtfs")
+			
+
 	def getOrMakeDictForAttr(self,attr):
 		if(not hasattr(self,"attrDicts")):
 			self.attrDicts = dict()

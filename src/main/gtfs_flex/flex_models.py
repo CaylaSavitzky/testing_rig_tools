@@ -6,46 +6,42 @@ add more as needed.
 from utilities import *
 from flex_core_models import *
 
-class BookingRule(GtfsObject):
-	possibleIds = ["booking_rule_id"]
-	def __init__(self, initial_data,agency,dao):
-		self.trips = dict()
+class Agency(GtfsObject):
+	def __init__(self, initial_data,agencies,dao):
 		for key in initial_data:
 			datum = initial_data[key]
 			setattr(self,key,datum)
-			if (key in self.possibleIds):
-				self.setId(GtfsObjId(agency,datum))
+		self.setId(GtfsObjId(self.agency_id,initial_data.__hash__()))
+		agency[agency_id]=agency_id
+
+class BookingRule(GtfsObject):
+	possibleIds = ["booking_rule_id"]
+	def __init__(self, initial_data,agencies,dao):
+		self.trips = dict()
+		super().__init__(initial_data,agencies,dao)
 	def getId(self):
 		return self.myId
 	
 
 class Trip(GtfsObject):
 	possibleIds = ["trip_id"]
-	def __init__(self, initial_data,agency,dao):
+	def __init__(self, initial_data,agencies,dao):
 		self.stop_times = dict()
 		self.putDictForAttr("trip",self.stop_times)
 		# print("creating trip from " + str(initial_data))
-		for key in initial_data:
-			datum = initial_data[key]
-			if (key in self.possibleIds):
-				self.setId(GtfsObjId(agency,datum))
-			if (key == "stop_id"):
-				self.stop=dao.getGtfsObject(Stop,datum)
-				if (self.stop==None):
-					raise Exception("could not find stop " + datum)
-			setattr(self,key,datum)
+		super().__init__(initial_data,agencies,dao)
+		# print(dir(self))
+		# self.stop=dao.getGtfsObject(Stop,self.stop_id)
+		# if (self.stop==None):
+		# 	raise Exception("could not find stop " + datum)
 	def getId(self):
 		return self.myId
 	
 
 class StopTime(GtfsObject):
 	possibleIds = ["backup_id"]
-	def __init__(self, initial_data,agency,dao):		
-		for key in initial_data:
-			datum = initial_data[key]
-			setattr(self,key,datum)
-			if (key in self.possibleIds):
-				self.setId(GtfsObjId(agency,datum))
+	def __init__(self, initial_data,agencies,dao):		
+		super().__init__(initial_data,agencies,dao)
 		self.stop_id = str(self.stop_id)
 		addOneToManyRelationship(self,"stop_id",dao,Stop)
 		addOneToManyRelationship(self,"trip_id",dao,Trip)
@@ -64,12 +60,8 @@ class StopTime(GtfsObject):
 # somthing that turns core id into ID
 class Stop(GtfsObject):
 	possibleIds = ["stop_id","location_group_id","id"]
-	def __init__(self, initial_data,agency,dao):
-		for key in initial_data:
-			if (key in self.possibleIds):
-				self.type = self.possibleIds.index(key)
-				self.setId(GtfsObjId(agency,str(initial_data[key])))
-			setattr(self,key,initial_data[key])
+	def __init__(self, initial_data,agencies,dao):
+		super().__init__(initial_data,agencies,dao)
 		self.initial_data = initial_data
 		self.substops = dict()
 		self.putDictForAttr("substops",self.substops)
