@@ -14,7 +14,7 @@ class Agency(GtfsObject):
 			setattr(self,key,datum)
 			contentList.append(str(datum))
 		self.setId(GtfsObjId(self.agency_id,"".join(contentList).__hash__()))
-		agencies[self.agency_id]=self.agency_id
+		agencies[self.getId()]=self.getId()
 
 class BookingRule(GtfsObject):
 	possibleIds = ["booking_rule_id"]
@@ -96,7 +96,7 @@ class DaoImpl:
 	Stop:dict(),
 	StopTime:dict(),
 	Trip:dict(),
-	BookingRule:dict()
+	BookingRule:dict(),
 	}
 	def __contains__(self,item):
 		if(not type(item) in self.data):
@@ -115,17 +115,34 @@ class DaoImpl:
 	def addGftsObject(self,obj):
 		if(not type(obj) in self.data):
 			raise Exception("dao cannot process objects of type {}".format(type(obj)))
+		if(type(obj)==Trip):
+			agency = obj.getId().getAgency()
+			typeHolder =self.data.get(type(obj))
+			typeAgencyHolder = typeHolder.get(agency) 
+			if(typeAgencyHolder==None):
+				typeAgencyHolder = dict()
+				typeHolder[agency]=typeAgencyHolder
+			# print("adding trip {} to agency {}".format(obj.getId().getValue(),agency.getId()))
+			typeAgencyHolder[obj.getId()]=obj
 		self.data.get(type(obj))[obj.getId()] = obj
 	def getDict(self,clazz):
 		raise Exception("implement getDict")
 	def getTrips(self):
+		raise Exception("implement getTrips as merged dict using | operator")
 		return self.data[Trip]
 	def getStops(self):
 		return self.data[Stop]
 	def getStopTimes(self):
-		return self.data[stop_times]
+		return self.data[StopTime]
+	def getAgencies(self):
+		return self.data[Agency]
+	def getTripsForAgency(self,agency):
+		# print(self.data[Trip])
+		# print(agency)
+		return self.data[Trip].get(agency)
 	def getContainer(self,objType):
 		return self.data.get(objType)
+
 
 
 

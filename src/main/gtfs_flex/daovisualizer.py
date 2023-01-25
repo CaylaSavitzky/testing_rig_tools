@@ -12,15 +12,37 @@ class DaoVisualizer:
 
 	def generateMapFromDao(self,dao,color="green"):
 		style["fillColor"]=color
-		# folium_map = folium.FeatureGroup(name = dao.getAgencyName())
-		for trip in dao.getTrips():
-			itt = 0
-			trip = dao.getGtfsObject(Trip,trip)
-			stopsForStopTimes = list()
-			for stop_time in trip.stop_times:
-				stopsForStopTimes.append(DaoVisualizer.getStopCenterListAndAddStopsToMap(trip.stop_times[stop_time],self.m))
-			printDebug(['stops for stoptimes: ',stopsForStopTimes])
-			self.addLinesToMap(stopsForStopTimes,self.m)
+		# folium.LayerControl().add_to(self.m)
+		for agency in dao.getAgencies():
+			for trip in dao.getTripsForAgency(agency):
+				# printDebug("trip is: {}".format(trip))
+				trip = dao.getGtfsObject(Trip,trip)
+				# printDebug("trip is: {}".format(trip))
+				stopsForStopTimes = list()
+				for stop_time in trip.stop_times:
+					# printDebug("stopTime is: {}".format(stop_time))
+					stopsForStopTimes.append(DaoVisualizer.getStopCenterListAndAddStopsToMap(trip.stop_times[stop_time],self.m))
+				# printDebug(['stops for stoptimes: ',stopsForStopTimes])
+				self.addLinesToMap(stopsForStopTimes,self.m)
+
+
+
+	# 		self.generateLayerForAgency(agency,color,dao)
+			
+
+
+	# def generateLayerForAgency(self,agency,color,dao):
+	# 	folium_layer = folium.FeatureGroup(name = agency.getValue())
+	# 	folium_layer.add_to(self.m)
+	# 	for trip in dao.getTripsForAgency(agency):
+	# 		itt = 0
+	# 		trip = dao.getGtfsObject(Trip,trip)
+	# 		stopsForStopTimes = list()
+	# 		for stop_time in trip.stop_times:
+	# 			stopsForStopTimes.append(DaoVisualizer.getStopCenterListAndAddStopsToMap(trip.stop_times[stop_time],folium_layer))
+	# 		printDebug(['stops for stoptimes: ',stopsForStopTimes])
+	# 		self.addLinesToMap(stopsForStopTimes,folium_layer)
+
 
 	def save(self,output_folder):
 		self.m.save(output_folder)
@@ -67,5 +89,7 @@ class DaoVisualizer:
 
 	def getMap(self):
 		return self.m
+
+
 style = {'fillColor': '#00FFFFFF', 'lineColor': '#00FFFFFF'}
 overflowStyle = {"overflow":"scroll"}

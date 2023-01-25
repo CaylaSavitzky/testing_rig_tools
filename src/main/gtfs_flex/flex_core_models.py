@@ -89,10 +89,13 @@ class Dao:
 	def getStopTimes(self):
 		pass
 	@abstractmethod
-	def getAgencyName(self):
+	def getAgencies(self):
 		pass
 	@abstractmethod
 	def readFlexDirectory(self):
+		pass
+	@abstractmethod
+	def getTripsForAgency(self,agency):
 		pass
 	@abstractmethod
 	def getContainer(self,objType):

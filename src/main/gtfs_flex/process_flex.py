@@ -21,8 +21,9 @@ FlexReader.readFlexDirectoryIntoDao(data_path,dao)
 daoVisualizer = DaoVisualizer()
 daoVisualizer.generateMapFromDao(dao,color = color)
 out = ""
-for text in getTravelInfoForTripsStrings(dao):
-		out+=text+"\n"
+for agency in dao.getAgencies():
+	out = "Agency: {} \n\n".format(agency.getValue())
+	out += "\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency))
 if(len(sys.argv)>2):
 	# probably should add some options here
 	print(out)	

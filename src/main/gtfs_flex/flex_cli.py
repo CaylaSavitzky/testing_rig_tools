@@ -51,9 +51,9 @@ def stringifyStopTimeOutput(st):
 	return out
 
 
-def getTravelInfoForTripsStrings(dao):
+def getTravelInfoForTripsOfAgencyStrings(dao,agency):
 	outputStringsContainer = list()
-	for trip in dao.getTrips():
+	for trip in dao.getTripsForAgency(agency):
 		out = "for trip-{}: \n".format(trip.getId())
 		itt = 0
 		trip = dao.getGtfsObject(Trip,trip)

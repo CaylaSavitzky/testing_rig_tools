@@ -6,13 +6,13 @@ from flex_core_models import *
 def addManyToManyRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True,agency=None):
 	relatedObj = getRelatedObject(obj,attr,dao,containerType,raiseException=raiseException,agency=agency)
 	attr = removeIdIfTrue(attr,removeId)
-	relatedObj.getOrMakeDictForAttr(newattr or attr)[obj.getId]=obj
-	obj.getOrMakeDictForAttr(attr)[relatedObj.getId]=relatedObj
+	relatedObj.getOrMakeDictForAttr(newattr or attr)[obj.getId()]=obj
+	obj.getOrMakeDictForAttr(attr)[relatedObj.getId()]=relatedObj
 
 def addOneToManyRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True,agency=None):
 	relatedObj = getRelatedObject(obj,attr,dao,containerType,raiseException=raiseException,agency=agency)
 	attr = removeIdIfTrue(attr,removeId)
-	relatedObj.getOrMakeDictForAttr(attr)[obj.getId]=obj
+	relatedObj.getOrMakeDictForAttr(attr)[obj.getId()]=obj
 	setattr(obj,attr,relatedObj)
 
 def addOneToOneRelationship(obj,attr,dao,containerType=None,removeId=True,raiseException=True,agency=None):

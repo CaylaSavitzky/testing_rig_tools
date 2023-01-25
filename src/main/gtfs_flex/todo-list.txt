@@ -32,7 +32,7 @@ solution:
 problem:
 	doesn't handle a single gtfs with multiple agencies, or one gtfs referencing other agencies 
 solution:
-	minor fix in obj creation, but would be easier and better if first updated all obj creation methods to reference super and put that info there
+	should be pretty simple fix, just need to add recognition of agency_id to core GtfsObj
 
 feature:
 	multiple agencies that work by layers
