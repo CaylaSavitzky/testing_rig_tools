@@ -61,6 +61,8 @@ class StopTime(GtfsObject):
 
 # somthing that turns core id into ID
 class Stop(GtfsObject):
+	xNum=0
+	yNum=1
 	possibleIds = ["stop_id","location_group_id","id"]
 	def __init__(self, initial_data,agencies,dao):
 		super().__init__(initial_data,agencies,dao)
@@ -70,6 +72,38 @@ class Stop(GtfsObject):
 		self.parentStops = dict()
 		self.putDictForAttr("parentStops",self.parentStops)
 
+	def getBoundingBox(self):
+		if(hasattr(self,"boundingBox")):
+			return self.boundingBox
+		#if switch to geojson replace this with better built in method
+		if(self.type==0):
+			raise Exception("boundingBox not implemented for regular stops")
+		if(self.type==1):
+			raise Exception("boundingBox not implemented for locationgroups")
+		else:
+
+			xmin = self.initial_data["geometry"]["coordinates"][0][0][self.xNum]
+			xmax = xmin
+			ymin = self.initial_data["geometry"]["coordinates"][0][0][self.yNum]
+			ymax = ymin
+			for cord in self.initial_data["geometry"]["coordinates"][0]:
+				x=cord[self.xNum]
+				if(x<xmin):
+					xmin=x
+				if(x>xmax):
+					xmax=x
+				y=cord[self.yNum]
+				if(y<ymin):
+					ymin=y
+				if(y>ymax):
+					ymax=y
+			self.xmin = xmin
+			self.xmax = xmax
+			self.ymin = ymin
+			self.ymax = ymax
+			self.boundingBox=[[self.xmin,self.ymin],[self.xmax,self.ymax]]
+			return self.boundingBox
+
 	def getCenter(self):
 		out = list()
 		if(self.type==0):
@@ -78,11 +112,13 @@ class Stop(GtfsObject):
 			for substop in self.substops:
 				out.append(self.substops[substop].getCenter())
 		else:
-			print("fix Stop getCenter")
-			# change to run through points to get min&max x,y and calc center
-			firstCord = self.initial_data["geometry"]["coordinates"][0][0]
-			invertedCord = [firstCord[1],firstCord[0]]
-			print(firstCord)
+			#if switch to geojson replace this with better built in method
+			bB = self.getBoundingBox()
+			print("for stop:{} using boundingBox: {}".format(self.getId().getId(),bB))
+			invertedCord = [
+			((bB[1][self.yNum]+bB[0][self.yNum])/2),
+			((bB[1][self.xNum]+bB[0][self.xNum])/2)]
+			print("adding cord: {}".format(invertedCord))
 			out.append(invertedCord)
 		return out
 	def getId(self):

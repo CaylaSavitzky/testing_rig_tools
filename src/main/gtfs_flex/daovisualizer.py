@@ -13,6 +13,7 @@ class DaoVisualizer:
 
 	def generateMapFromDao(self,dao,color="green",includeLegend=True):
 		style["fillColor"]=color
+		# folium.ClickForLatLng().add_to(self.m)
 		if(includeLegend):
 			self.addMergedLegend(dao)
 		for agency in dao.getAgencies():
@@ -32,7 +33,7 @@ class DaoVisualizer:
 		addLegend(legendText,self.m)
 
 	def generateLayerForAgency(self,agency,color,dao):
-		folium_layer = folium.FeatureGroup(name = agency.getValue())add_to(self.m)
+		folium_layer = folium.FeatureGroup(name = agency.getValue()).add_to(self.m)
 		for trip in dao.getTripsForAgency(agency):
 			itt = 0
 			trip = dao.getGtfsObject(Trip,trip)
@@ -84,8 +85,12 @@ class DaoVisualizer:
 
 	def addLocationToMap(location,folium_map):
 		printDebug(['adding location(stop) to map: ',location.getId().getId()])
-		popup = createStickyPopup('location: {}'.format(location.getId().getId()))
-		addGeoJsonToMapWithChild(location.initial_data["geometry"],popup,folium_map,style = style)
+		addMarkerWithPopup(
+			location.getCenter()[0],
+			'location: {}'.format(
+				location.getId().getId()),
+			folium_map)
+		addGeoJsonToMapWithChild(location.initial_data["geometry"],folium.LatLngPopup(),folium_map,style = style)
 
 	def getMap(self):
 		return self.m
