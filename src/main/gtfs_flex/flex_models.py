@@ -114,11 +114,11 @@ class Stop(GtfsObject):
 		else:
 			#if switch to geojson replace this with better built in method
 			bB = self.getBoundingBox()
-			print("for stop:{} using boundingBox: {}".format(self.getId().getId(),bB))
+			# print("for stop:{} using boundingBox: {}".format(self.getId().getId(),bB))
 			invertedCord = [
 			((bB[1][self.yNum]+bB[0][self.yNum])/2),
 			((bB[1][self.xNum]+bB[0][self.xNum])/2)]
-			print("adding cord: {}".format(invertedCord))
+			# print("adding cord: {}".format(invertedCord))
 			out.append(invertedCord)
 		return out
 	def getId(self):

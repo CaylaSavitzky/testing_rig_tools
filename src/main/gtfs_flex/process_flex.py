@@ -4,41 +4,47 @@ from daovisualizer import *
 import shutil
 
 
+#colorlist=["#7e9a9a","#f6d8ac","#db9833","#2a6592","#8ec3eb"]
+
+colorlist=[
+"#ffb5bA",
+"#be0032",
+"#f38400",
+"#f3c300",
+"#008856",
+"#00a1c2",
+"#9a4eae",
+"#9a4eae"]
+
+
+
 def unzip(file,data_path):  
 	# loading the temp.zip and creating a zip object
 	with ZipFile(file, 'r') as zObject:
 		zObject.extractall(path=data_path)
 
-
-file = sys.argv[1]
-data_path = sys.argv[1].split('.')[0]
-unzip(file,data_path)
-
-
-color = 'red'
-dao = DaoImpl()
-FlexReader.readFlexDirectoryIntoDao(data_path,dao)
-daoVisualizer = DaoVisualizer()
-
+argvItt = 1
 includeLegend = True
-# out = ""
-# for agency in dao.getAgencies():
-# 	out = "Agency: {} \n\n".format(agency.getValue())
-# 	out += "\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency))
-if(len(sys.argv)>2):
-	# probably should add some options here
-	# print(out)	
-	includeLegend = False
-# else:
-# 	addLegend(out,daoVisualizer.getMap())
-daoVisualizer.generateMapFromDao(dao,color = color,includeLegend=includeLegend)
-daoVisualizer.save(data_path+"-map.html")
+if(sys.argv[argvItt]=="hideLegend"):
+	includeLegend=False
+	argvItt+=1
 
-shutil.rmtree(data_path)
+dao = DaoImpl()
+daoVisualizer = DaoVisualizer()
+while argvItt<len(sys.argv)-1:
+	file = sys.argv[argvItt]
+	data_path = sys.argv[argvItt].split('.')[0]
+	unzip(file,data_path)
+	FlexReader.readFlexDirectoryIntoDao(data_path,dao)
+	shutil.rmtree(data_path)
+	argvItt+=1
+
+daoVisualizer.generateMapFromDao(dao,colors = colorlist,includeLegend=includeLegend)
+if(sys.argv[argvItt][-1] =="/"):
+	sys.argv[argvItt]+="processed_flex_map"
+daoVisualizer.save(sys.argv[argvItt]+".html")
 
 
-import os
-command = " /bin/bash -c firefox "+data_path+"-map.html"
 print("firefox "+data_path+"-map.html")
-os.system(command)
+
 
