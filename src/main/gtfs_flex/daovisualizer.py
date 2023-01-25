@@ -1,4 +1,5 @@
 from visualize_geo import *
+from flex_cli import *
 """
 takes dao and creates map
 """
@@ -10,38 +11,37 @@ class DaoVisualizer:
 		if(showMousePosition):
 			enableShowMousePosition(self.m)
 
-	def generateMapFromDao(self,dao,color="green"):
+	def generateMapFromDao(self,dao,color="green",includeLegend=True):
 		style["fillColor"]=color
-		# folium.LayerControl().add_to(self.m)
+		if(includeLegend):
+			self.addMergedLegend(dao)
 		for agency in dao.getAgencies():
-			for trip in dao.getTripsForAgency(agency):
-				# printDebug("trip is: {}".format(trip))
-				trip = dao.getGtfsObject(Trip,trip)
-				# printDebug("trip is: {}".format(trip))
-				stopsForStopTimes = list()
-				for stop_time in trip.stop_times:
-					# printDebug("stopTime is: {}".format(stop_time))
-					stopsForStopTimes.append(DaoVisualizer.getStopCenterListAndAddStopsToMap(trip.stop_times[stop_time],self.m))
-				# printDebug(['stops for stoptimes: ',stopsForStopTimes])
-				self.addLinesToMap(stopsForStopTimes,self.m)
-
-
-
-	# 		self.generateLayerForAgency(agency,color,dao)
+			layer = self.generateLayerForAgency(agency,color,dao)
+			# option for if legends get hooked into layer control. for later.
+			# if(includeLegend):
+			# 	legendText = "Agency: {} \n\n".format(agency.getValue())
+			# 	legendText += "\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency))
+			# 	addLegend(legendText,layer)
+		folium.LayerControl().add_to(self.m)
 			
+	def addMergedLegend(self,dao):
+		legendText = ""
+		for agency in dao.getAgencies():
+			legendText += "Agency: {} \n\n".format(agency.getValue())
+			legendText += "\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency))
+		addLegend(legendText,self.m)
 
-
-	# def generateLayerForAgency(self,agency,color,dao):
-	# 	folium_layer = folium.FeatureGroup(name = agency.getValue())
-	# 	folium_layer.add_to(self.m)
-	# 	for trip in dao.getTripsForAgency(agency):
-	# 		itt = 0
-	# 		trip = dao.getGtfsObject(Trip,trip)
-	# 		stopsForStopTimes = list()
-	# 		for stop_time in trip.stop_times:
-	# 			stopsForStopTimes.append(DaoVisualizer.getStopCenterListAndAddStopsToMap(trip.stop_times[stop_time],folium_layer))
-	# 		printDebug(['stops for stoptimes: ',stopsForStopTimes])
-	# 		self.addLinesToMap(stopsForStopTimes,folium_layer)
+	def generateLayerForAgency(self,agency,color,dao):
+		folium_layer = folium.FeatureGroup(name = agency.getValue())add_to(self.m)
+		for trip in dao.getTripsForAgency(agency):
+			itt = 0
+			trip = dao.getGtfsObject(Trip,trip)
+			stopsForStopTimes = list()
+			for stop_time in trip.stop_times:
+				stopsForStopTimes.append(DaoVisualizer.getStopCenterListAndAddStopsToMap(trip.stop_times[stop_time],folium_layer))
+			printDebug(['stops for stoptimes: ',stopsForStopTimes])
+			self.addLinesToMap(stopsForStopTimes,folium_layer)
+		return folium_layer
 
 
 	def save(self,output_folder):

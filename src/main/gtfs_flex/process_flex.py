@@ -19,16 +19,19 @@ color = 'red'
 dao = DaoImpl()
 FlexReader.readFlexDirectoryIntoDao(data_path,dao)
 daoVisualizer = DaoVisualizer()
-daoVisualizer.generateMapFromDao(dao,color = color)
-out = ""
-for agency in dao.getAgencies():
-	out = "Agency: {} \n\n".format(agency.getValue())
-	out += "\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency))
+
+includeLegend = True
+# out = ""
+# for agency in dao.getAgencies():
+# 	out = "Agency: {} \n\n".format(agency.getValue())
+# 	out += "\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency))
 if(len(sys.argv)>2):
 	# probably should add some options here
-	print(out)	
-else:
-	addLegend(out,daoVisualizer.getMap())
+	# print(out)	
+	includeLegend = False
+# else:
+# 	addLegend(out,daoVisualizer.getMap())
+daoVisualizer.generateMapFromDao(dao,color = color,includeLegend=includeLegend)
 daoVisualizer.save(data_path+"-map.html")
 
 shutil.rmtree(data_path)

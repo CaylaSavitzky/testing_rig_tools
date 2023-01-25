@@ -19,10 +19,8 @@ an incredibly messy method where we convert text into an image and then
 cover half the page with that image because there are no other pre-existing 
 abosolute possitioned items in folium
 """
-def addLegend(text,folium_map=None):
-	if(folium_map == None):
-		global m
-		folium_map = m
+def addLegend(text,folium_map):
+	print("using map {}".format(folium_map))
 	text=text.replace("<","&lt;").replace(">","&gt;")
 	out = '<p style="padding: 24px; white-space: pre-wrap; font-size : 24; background-color : black; color : white;">{}</p>'.format(text)
 	FloatDiv(out,left=0,bottom=0).add_to(folium_map)
