@@ -6,18 +6,9 @@ add more as needed.
 from utilities import *
 from flex_core_models import *
 
-class Agency(GtfsObject):
-	def __init__(self, initial_data,agencies,dao):
-		contentList = list()
-		for key in initial_data:
-			datum = initial_data[key]
-			setattr(self,key,datum)
-			contentList.append(str(datum))
-		self.setId(GtfsObjId(self.agency_id,"".join(contentList).__hash__()))
-		agencies[self.getId()]=self.getId()
-		self.readable = self.agency_id
-		if(hasattr(self,"agency_name")):
-			self.readable = self.agency_name
+
+
+
 
 class BookingRule(GtfsObject):
 	possibleIds = ["booking_rule_id"]
@@ -33,9 +24,9 @@ class Trip(GtfsObject):
 	def __init__(self, initial_data,agencies,dao):
 		self.stop_times = dict()
 		self.putDictForAttr("trip",self.stop_times)
-		# print("creating trip from " + str(initial_data))
+		# printDebug("creating trip from " + str(initial_data))
 		super().__init__(initial_data,agencies,dao)
-		# print(dir(self))
+		# printDebug(dir(self))
 		# self.stop=dao.getGtfsObject(Stop,self.stop_id)
 		# if (self.stop==None):
 		# 	raise Exception("could not find stop " + datum)
@@ -44,14 +35,16 @@ class Trip(GtfsObject):
 	
 
 class StopTime(GtfsObject):
-	possibleIds = ["backup_id"]
-	def __init__(self, initial_data,agencies,dao):		
+	possibleIds = ["file_itt"]
+	def __init__(self, initial_data,agencies,dao):
+		self.pickup_booking_rule_id = None
+		self.drop_off_booking_rule_id = None
 		super().__init__(initial_data,agencies,dao)
 		self.stop_id = str(self.stop_id)
 		addOneToManyRelationship(self,"stop_id",dao,Stop)
 		addOneToManyRelationship(self,"trip_id",dao,Trip)
-		# print("\n\n")
-		# print("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
+		# printDebug("\n\n")
+		# printDebug("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
 		# printShortHandTripInfo(self.trip)
 		if(isNotNullOrNan(self.pickup_booking_rule_id)):
 			addOneToManyRelationship(self,"pickup_booking_rule_id",dao,BookingRule)
@@ -121,11 +114,11 @@ class Stop(GtfsObject):
 		else:
 			#if switch to geojson replace this with better built in method
 			bB = self.getBoundingBox()
-			# print("for stop:{} using boundingBox: {}".format(self.getId().getId(),bB))
+			# printDebug("for stop:{} using boundingBox: {}".format(self.getId().getId(),bB))
 			invertedCord = [
 			((bB[1][self.yNum]+bB[0][self.yNum])/2),
 			((bB[1][self.xNum]+bB[0][self.xNum])/2)]
-			# print("adding cord: {}".format(invertedCord))
+			# printDebug("adding cord: {}".format(invertedCord))
 			out.append(invertedCord)
 		return out
 	def getId(self):
@@ -165,7 +158,7 @@ class DaoImpl:
 			if(typeAgencyHolder==None):
 				typeAgencyHolder = dict()
 				typeHolder[agency]=typeAgencyHolder
-			# print("adding trip {} to agency {}".format(obj.getId().getValue(),agency.getId()))
+			# printDebug("adding trip {} to agency {}".format(obj.getId().getValue(),agency.getId()))
 			typeAgencyHolder[obj.getId()]=obj
 		self.data.get(type(obj))[obj.getId()] = obj
 	def getDict(self,clazz):
@@ -180,8 +173,8 @@ class DaoImpl:
 	def getAgencies(self):
 		return self.data[Agency]
 	def getTripsForAgency(self,agency):
-		# print(self.data[Trip])
-		# print(agency)
+		# printDebug(self.data[Trip])
+		# printDebug(agency)
 		return self.data[Trip].get(agency)
 	def getContainer(self,objType):
 		return self.data.get(objType)
@@ -191,7 +184,7 @@ class DaoImpl:
 
 
 def printShortHandTripInfo(trip):
-	out = print("\n",trip.myId, trip)
+	out = printDebug("\n",trip.myId, trip)
 	for stop_time in trip.stop_times:
 		st = trip.stop_times[stop_time]
-		print(str(st.myId), str(st.stop.myId))
+		printDebug(str(st.myId), str(st.stop.myId))

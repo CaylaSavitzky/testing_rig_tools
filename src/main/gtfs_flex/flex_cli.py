@@ -22,13 +22,14 @@ from flex_reader import *
 
 def stringifyBookingInfo(rule):
 	out = ""
-	if(rule.booking_type==2):
-		out += "  Make sure to book at most " + str(rule.prior_notice_start_day) + " days beforehand after " + str(rule.prior_notice_start_time)
-		out += " and at least "+str(rule.prior_notice_last_day) +" days beforehand by " + str(rule.prior_notice_last_time)
-	else:
-		out += "  Make sure to book at least " + str(rule.prior_notice_duration_min) +" minutes beforehand "
-	if((rule.booking_type==1) and (rule.prior_notice_duration_max!=None)):
-		out += " and at most " + str(rule.prior_notice_duration_max) + " minutes beforehand"
+	if(hasattr(rule,"booking_type")):
+		if(rule.booking_type==2):
+			out += "  Make sure to book at most " + str(rule.prior_notice_start_day) + " days beforehand after " + str(rule.prior_notice_start_time)
+			out += " and at least "+str(rule.prior_notice_last_day) +" days beforehand by " + str(rule.prior_notice_last_time)
+		else:
+			out += "  Make sure to book at least " + str(rule.prior_notice_duration_min) +" minutes beforehand "
+		if((rule.booking_type==1) and (rule.prior_notice_duration_max!=None)):
+			out += " and at most " + str(rule.prior_notice_duration_max) + " minutes beforehand"
 	return out;
 
 def stringifyStopTimeOutput(st):
@@ -36,16 +37,22 @@ def stringifyStopTimeOutput(st):
 	# out +="in stop_time " + str(st.getId())
 	if(len(st.stop.substops)>0):
 		out += "<parent location:" + str(st.stop.getId().getId()) + "> and "
-		for substop in st.stop.substops:
-			out += "<location:" + str(substop.getId().getId()) + "> "
+		for substopId in st.stop.substops:
+			out += "<location:" + str(substopId) + "> "
 	else:
 		out += "<location:" + str(st.stop.getId().getId()) + ">"
-	out += "\n which is allowed between the hours of: " + str(st.start_pickup_drop_off_window)
-	out += " and " + str(st.end_pickup_drop_off_window) +".\n"
-	if(isNotNullOrNan(st.pickup_booking_rule_id)):
-		out += stringifyBookingInfo(st.pickup_booking_rule)
-	elif(isNotNullOrNan(st.drop_off_booking_rule_id)):
-		out += stringifyBookingInfo(st.drop_off_booking_rule)
+	if(hasattr(st,"start_pickup_drop_off_window")):
+		out += "\n which is allowed between the hours of: " + str(st.start_pickup_drop_off_window) + " and "
+	else:
+		out += " which has no pickup window and has a dropoff window of "
+	if(hasattr(st,"end_pickup_drop_off_window")):
+		out += str(st.end_pickup_drop_off_window) +".\n"
+	else:
+		out += " no end_pickup_drop_off_window"
+	if(hasattr(st,"pickup_booking_rule_id")):
+		out += stringifyBookingInfo(st.pickup_booking_rule_id)
+	elif(hasattr(st,"drop_off_booking_rule_id")):
+		out += stringifyBookingInfo(st.drop_off_booking_rule_id)
 	else:
 		out+= " cannot give more information as stoptime does not have a pickup or drop_off _booking_rule"
 	return out
@@ -53,6 +60,10 @@ def stringifyStopTimeOutput(st):
 
 def getTravelInfoForTripsOfAgencyStrings(dao,agency):
 	outputStringsContainer = list()
+	printDebug(dao.data[Trip])
+	printDebug(list(dao.data[Trip].keys())[0])
+	printDebug(agency)
+	printDebug(agency.getReadable())
 	for trip in dao.getTripsForAgency(agency):
 		out = "for trip-{}: \n".format(trip.getId())
 		itt = 0
@@ -79,17 +90,17 @@ def getTravelInfoForTripsOfAgencyStrings(dao,agency):
 
 
 if __name__ == "__main__":
-	print("running flex_cli")
+	printDebug("running flex_cli")
 	folder = sys.argv[1]
 
 	dao = DaoImpl()
 	FlexReader.readFlexDirectoryIntoDao(folder,dao)
 
 	# for trip in dao.trips:
-	# 	out = print("\n",trip, dao.trips[trip])
+	# 	out = printDebug("\n",trip, dao.trips[trip])
 	# 	for stop_time in dao.trips[trip].stop_times:
 	# 		st = dao.trips[trip].stop_times[stop_time]
-	# 		print(str(st.getId()), str(st.stop.getId()))
+	# 		printDebug(str(st.getId()), str(st.stop.getId()))
 
 	for out in getTravelInfoForTripsStrings(dao):
-		print(out+"\n")
+		printDebug(out+"\n")

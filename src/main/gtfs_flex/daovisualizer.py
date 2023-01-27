@@ -15,9 +15,10 @@ class DaoVisualizer:
 		if(includeLegend):
 			self.addMergedLegend(dao)
 		agencyItt = 0
-		for agency in dao.getAgencies():
+		for agencyId in dao.getAgencies():
+			agency=dao.getGtfsObject(Agency,agencyId)
 			color = colors[agencyItt%len(colors)]
-			print("using color {}, for agency {}".format(color,agency.getAgency()))
+			printDebug("using color {}, for agency {}".format(color,agency))
 			style = {'fillColor': color, 'lineColor': color}
 			layer = self.generateLayerForAgency(agency,style,dao)
 			agencyItt+=1
@@ -27,34 +28,80 @@ class DaoVisualizer:
 			
 	def addMergedLegend(self,dao):
 		legendText = ""
-		for agency in dao.getAgencies():
-			print("prepping legend for agency: {}".format(dao.getGtfsObject(Agency,agency).readable))
-			legendText += '<span style="font-size:24px">Agency: {}</span> \n\n'.format(dao.getGtfsObject(Agency,agency).readable)
+		for agencyId in dao.getAgencies():
+			agency=dao.getGtfsObject(Agency,agencyId)
+			printDebug("prepping legend for agency: {}".format(agency.readable))
+			legendText += '<span style="font-size:24px">Agency: {}</span> \n\n'.format(agency.readable)
 			legendText+="\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency)).replace("<","&lt;").replace(">","&gt;")
 			legendText+="\n\n\n\n"
 		addLegend(legendText,self.m)
 
-	def generateLayerForAgency(self,agency,style,dao):
-		folium_layer = folium.FeatureGroup(name = dao.getGtfsObject(Agency,agency).readable).add_to(self.m)
+	def generateLayerForAgency(self,agency,style,dao,printLines=False):
+		folium_layer = folium.FeatureGroup(name = agency.readable).add_to(self.m)
+		stops = set()
 		for trip in dao.getTripsForAgency(agency):
-			itt = 0
 			trip = dao.getGtfsObject(Trip,trip)
-			stopsForStopTimes = list()
+			# stopsForStopTimes = list()
 			for stop_time in trip.stop_times:
-				stopsForStopTimes.append(
-					DaoVisualizer.getStopCenterListAndAddStopsToMap(
-						trip.stop_times[stop_time],
-						style,
-						dao.getGtfsObject(Agency,agency).readable,
-						folium_layer))
-			printDebug(['stops for stoptimes: ',stopsForStopTimes])
-			self.addLinesToMap(stopsForStopTimes,folium_layer)
+				printDebug("stoptime is {}".format(stop_time))
+				stop_time = dao.getGtfsObject(StopTime,stop_time)
+				printDebug("stoptime is {}".format(stop_time))
+				DaoVisualizer.addStopsToSet(stop_time.stop,stops)
+				# stopsForStopTimes.extend(
+				# 	DaoVisualizer.getStopsForStopTime(
+				# 		trip.stop_times[stop_time],
+				# 		style,
+				# 		agency.readable,
+				# 		folium_layer))
+			# printDebug(['stops for stoptimes: ',stopsForStopTimes])
+			# if(printLines):
+			# 	self.addLinesToMap(stopsForStopTimes,folium_layer)
+		DaoVisualizer.addStopsToMap(stops,style,agency.getReadable(),folium_layer)
 		return folium_layer
 
 
 	def save(self,output_folder):
+		print("print saving map!")
 		self.m.save(output_folder)
 
+	def addStopsToSet(stop,stops : set, depth = 1):
+		if(depth>50):
+			raise Exception("max stack depth exceeded searching for {}".format(stop.getId().getValue()))
+		if(stop.getType()==0):
+			stops.add(stop)
+		elif(stop.getType()==1):
+			for substopId in stop.substops:
+				substop = stop.substops[substopId]
+				printDebug("recursing to add substop {} from stop {}".format(substop,stop))
+				DaoVisualizer.addStopsToSet(substop,stops,depth=depth+1)
+		else:
+			stops.add(stop)
+
+	def addStopsToMap(stops,style,readableAgencyName, folium_map):
+		for stop in stops:
+			if(stop.getType()==0):
+				DaoVisualizer.addClassicStopToMap(stop,style,readableAgencyName,folium_map)
+			elif(stop.getType()==2):
+				DaoVisualizer.addLocationToMap(stop,style,readableAgencyName,folium_map)
+			else:
+				raise Exception("location_groups shouldnot reach this method")
+				addStopsToMap(stop.substops)
+
+
+	# def getStopsForStopTime():
+	# 	stops = list()
+	# 	st = stop_time
+	# 	stop = st.stop
+	# 	if(stop.getType()==0):
+	# 		DaoVisualizer.addClassicStopToMap(stop,style,readableAgencyName,folium_map)
+	# 	elif(stop.getType()==1):
+	# 		printDebug(['stop ',stop.getId().getId(),' is a location group with ', len(stop.substops), ' substops'])
+	# 		for substop in st.stop.substops:
+	# 			stop = st.stop.substops[substop]
+	# 			DaoVisualizer.addLocationToMap(stop,style,readableAgencyName,folium_map)
+	# 	else:
+	# 		DaoVisualizer.addLocationToMap(stop,style,readableAgencyName,folium_map,)
+	# 	return stop_time.stop.getCenter()
 
 	def getStopCenterListAndAddStopsToMap(stop_time, style,readableAgencyName, folium_map):
 		stops = list()
@@ -62,11 +109,11 @@ class DaoVisualizer:
 		stop = st.stop
 		printDebug(['adding stoptime <',st.getId().getId(),'>  and stop <', str(st.stop.getId().getId()),'> of type: ', str(st.stop.getType())])
 		if(stop.getType()==0):
-			DaoVisualizer.addStopToMap(stop,style,readableAgencyName,folium_map)
+			DaoVisualizer.addClassicStopToMap(stop,style,readableAgencyName,folium_map)
 		elif(stop.getType()==1):
 			printDebug(['stop ',stop.getId().getId(),' is a location group with ', len(stop.substops), ' substops'])
-			for substop in st.stop.substops:
-				stop = st.stop.substops[substop]
+			for substopId in st.stop.substops:
+				stop = st.stop.substops[substopId]
 				DaoVisualizer.addLocationToMap(stop,style,readableAgencyName,folium_map)
 		else:
 			DaoVisualizer.addLocationToMap(stop,style,readableAgencyName,folium_map,)
@@ -78,17 +125,17 @@ class DaoVisualizer:
 		for stop_time_locations in locationsForStopTimes:
 			cordsForThisStopTime = list()
 			for cord in stop_time_locations:
-				# print("cord in stop_time_locations")
+				# printDebug("cord in stop_time_locations")
 				if(cord not in cordsForThisStopTime):
-					# print("cord not in cordsForThisStopTime")
+					# printDebug("cord not in cordsForThisStopTime")
 					for baseCord in baseCords:
 						connectAToBOnMap([baseCord,cord],folium_map)
 					if(not cord in baseCords):
-						# print("not cord in baseCords")
+						# printDebug("not cord in baseCords")
 						cordsForThisStopTime.append(cord)
-			# print(cordsForThisStopTime)
+			# printDebug(cordsForThisStopTime)
 			baseCords.extend(cordsForThisStopTime)
-			# print(baseCords)
+			# printDebug(baseCords)
 
 	def addLocationToMap(location,style,readableAgencyName,folium_map):
 		printDebug(['adding location(stop) to map: ',location.getId().getId()])
@@ -97,9 +144,10 @@ class DaoVisualizer:
 			'location: {}{}'.format(readableAgencyName,
 				location.getId().getValue()),
 			folium_map)
+		printDebug("adding location to map: {}".format(location.getId().getValue()))
 		addGeoJsonToMapWithChild(location.initial_data["geometry"],folium_map,style)
 
-	def addStopToMap(stop,style,readableAgencyName,folium_map):
+	def addClassicStopToMap(stop,style,readableAgencyName,folium_map):
 		printDebug(['adding stop to map: ',stop.getId().getId()])
 		addMarkerWithPopup(
 			stop.getCenter()[0],

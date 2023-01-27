@@ -20,18 +20,10 @@ cover half the page with that image because there are no other pre-existing
 abosolute possitioned items in folium
 """
 def addLegend(text,folium_map):
-	print("using map {}".format(folium_map))
+	printDebug("using map {}".format(folium_map))
 	out = '<p style="padding: 24px; white-space: pre-wrap; font-size : 24; background-color : black; color : white;">{}</p>'.format(text)
 	FloatDiv(out,left=0,bottom=0).add_to(folium_map)
 
-
-
-
-
-debug = True
-def printDebug(stuffToPrint):
-	if debug == True:
-		print("".join(str(item) for item in stuffToPrint))
 
 
 def connectAToBOnMap(cordPair,folium_map):
@@ -43,7 +35,7 @@ def connectAToBOnMap(cordPair,folium_map):
 
 
 def addMarkerWithPopup(latLon,message,folium_map):
-	# print(latLon)
+	# printDebug(latLon)
 	folium.map.Marker(
     [latLon[0], latLon[1]],
     popup=folium.Popup(message, sticky=True)

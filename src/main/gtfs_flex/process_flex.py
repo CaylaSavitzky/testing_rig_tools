@@ -2,6 +2,7 @@ from flex_cli import *
 from zipfile import ZipFile
 from daovisualizer import *
 import shutil
+import os
 
 
 colorlist=[
@@ -23,28 +24,47 @@ def unzip(file,data_path):
 	with ZipFile(file, 'r') as zObject:
 		zObject.extractall(path=data_path)
 
-argvItt = 1
+argsString = sys.argv.pop(0)
+
 includeLegend = True
-if(sys.argv[argvItt]=="hideLegend"):
+if(sys.argv[0]=="hideLegend"):
 	includeLegend=False
-	argvItt+=1
+	sys.argv.pop(0)
+
+
+
+
+outputPath = sys.argv.pop()
 
 dao = DaoImpl()
 daoVisualizer = DaoVisualizer()
-while argvItt<len(sys.argv)-1:
-	file = sys.argv[argvItt]
-	data_path = sys.argv[argvItt].split('.')[0]
-	unzip(file,data_path)
+while len(sys.argv)>0:
+	print(sys.argv)
+	path = sys.argv.pop(0)
+	if(not os.path.exists(path)):
+		print('could not find: {}'.format(path))
+		continue
+	if(os.path.isdir(path)):
+		print("recursing into directory ".format(path))
+		printDebug(os.listdir(path))
+		sys.argv.extend(path+filename for filename in os.listdir(path))
+		continue
+	if(path[-4:]!=".zip"):
+		print("skipping ".format(path))
+		continue
+	data_path = path.split('.')[0]
+	unzip(path,data_path)
 	FlexReader.readFlexDirectoryIntoDao(data_path,dao)
 	shutil.rmtree(data_path)
-	argvItt+=1
+
 
 daoVisualizer.generateMapFromDao(dao,colors = colorlist,includeLegend=includeLegend)
-if(sys.argv[argvItt][-1] =="/"):
-	sys.argv[argvItt]+="processed_flex_map"
-daoVisualizer.save(sys.argv[argvItt]+".html")
+if(outputPath[-1] =="/"):
+	outputPath+="processed_flex_map"
+if(outputPath[-5:]!=".html"):
+	outputPath+=".html"
+daoVisualizer.save(outputPath)
 
-
-print("firefox "+data_path+"-map.html")
+print("firefox "+outputPath)
 
 

@@ -13,29 +13,47 @@ def readTxtToDicts(folder,filename):
 	try:
 		return pandas.read_csv(folder+'/'+filename).to_dict(orient='records')
 	except FileNotFoundError:
-		print("could not read file: "+ folder+'/'+filename)
+		printDebug("could not read file: "+ folder+'/'+filename)
 		return None
 
 def readJsonToDicts(folder,filename):
 	try:
 		return json.load(open(folder+'/'+filename))['features']
 	except FileNotFoundError:
-		print("could not read file: "+ folder+'/'+filename)
+		printDebug("could not read file: "+ folder+'/'+filename)
 		return None
 
 class FlexReader():
+	def extractAgencyData(data,dao):
+		extractedData=dict() #should be a set but sooo much refactoring
+		if(data==None):
+			raise Exception("no agencies read from agencies.txt")
+		itt = 0
+		for datum in data:
+			datum["file_itt"] = itt
+			datum = Agency(datum,dao)
+			extractedData[datum]=datum
+			printDebug("in flex reader: {}".format(datum.getId()))
+			if(datum in dao):
+				printDebug(dataHolder.get(datum.getId()).__dict__)
+				printDebug(datum.__dict__)
+				raise Exception("datum ids and equivilents must be unique");
+			dao.addGftsObject(datum)
+			itt += 1
+		return extractedData
+
 	def addData(data,clazz,agency,dao):
 		if(data==None):
 			return
 		# todo: check if a datum is a subgroup of another stop and vice versa?
 		itt = 0
 		for datum in data:
-			datum["backup_id"] = itt
+			datum["file_itt"] = itt
 			datum = clazz(datum,agency,dao)
-			print("in flex reader: {}".format(datum.getId().getValue()))
+			printDebug("in flex reader: {}".format(datum.getId().getValue()))
 			if(datum in dao):
-				print(dataHolder.get(datum.getId()).__dict__)
-				print(datum.__dict__)
+				printDebug(dataHolder.get(datum.getId()).__dict__)
+				printDebug(datum.__dict__)
 				raise Exception("datum ids and equivilents must be unique");
 			dao.addGftsObject(datum)
 			itt += 1
@@ -52,35 +70,35 @@ class FlexReader():
 				stops[stop.getId()] = stop
 			substopId = dataForStop['location_id']
 			if(substopId!=None):
-				substop = stops.get(substopId)
+				substop = dao.getGtfsObject(Stop,GtfsObjId(stop.getId().getAgency(),str(substopId)))
 				if(substop==None):
-					raise Exception("location group ",stop.getId()," requires substop ",stop.location_id)
+					raise Exception("location group ",stop.getId().getValue()," requires substop ",stop.location_id)
 				else:
-					# print('adding substop ',substopId,' to stop ',stop.getId(), '<',stop,'>')
+					# printDebug('adding substop ',substopId,' to stop ',stop.getId(), '<',stop,'>')
+					if(type(substop)!=Stop):
+						raise Exception("stop {}'s substop {} must be of type Stop".format(stop,substop))
 					stop.substops[substopId] = substop
 					substop.parentStops[stop.getId()]=stop
-					# print(stop.getId(),' has ', len(stop.substops), ' substops')
+					# printDebug(stop.getId(),' has ', len(stop.substops), ' substops')
 
 
 	def readFlexDirectoryIntoDao(folder,dao, debug=False):
-		agency = dict()
-		# agency = {"agency":"agency"}
-		FlexReader.addData(readTxtToDicts(folder,"agency.txt"),Agency,agency,dao)
-
-		FlexReader.addData(readJsonToDicts(folder,"locations.geojson"),Stop,agency,dao)
-		FlexReader.processLocationGroups(readTxtToDicts(folder,"location_groups.txt"),agency,dao)
-		FlexReader.addData(readTxtToDicts(folder,"stops.txt"),Stop,agency,dao)
+		agencies = FlexReader.extractAgencyData(readTxtToDicts(folder,"agency.txt"),dao)
+		printDebug(agencies)
+		FlexReader.addData(readJsonToDicts(folder,"locations.geojson"),Stop,agencies,dao)
+		FlexReader.addData(readTxtToDicts(folder,"stops.txt"),Stop,agencies,dao)
+		FlexReader.processLocationGroups(readTxtToDicts(folder,"location_groups.txt"),agencies,dao)
 		# for stop in dao.getStops():
-		# 	print(stop, dao.getStops()[stop], dao.getStops()[stop].substops)
-		FlexReader.addData(readTxtToDicts(folder,"booking_rules.txt"),BookingRule,agency,dao)
+		# 	printDebug(stop, dao.getStops()[stop], dao.getStops()[stop].substops)
+		FlexReader.addData(readTxtToDicts(folder,"booking_rules.txt"),BookingRule,agencies,dao)
 		# for route in dao.routes:
-		# 	print(route, dao.routes[route])
-		FlexReader.addData(readTxtToDicts(folder,"trips.txt"),Trip,agency,dao)
+		# 	printDebug(route, dao.routes[route])
+		FlexReader.addData(readTxtToDicts(folder,"trips.txt"),Trip,agencies,dao)
 		# for trip in dao.getTrips():
-		# 	print(trip, dao.getTrips()[trip])
-		FlexReader.addData(readTxtToDicts(folder,"stop_times.txt"),StopTime,agency,dao)
+		# 	printDebug(trip, dao.getTrips()[trip])
+		FlexReader.addData(readTxtToDicts(folder,"stop_times.txt"),StopTime,agencies,dao)
 		# for stoptime in dao.stop_times:
-		# 	print(stoptime, dao.stop_times[stoptime].stop.getId())
+		# 	printDebug(stoptime, dao.stop_times[stoptime].stop.getId())
 
 
 

@@ -5,8 +5,27 @@ class Cord(list):
 		list.__init__(self, args[0])
 
 
+class Agency():
+	def __init__(self, initial_data,dao):
+		contentList = list()
+		for key in initial_data:
+			datum = initial_data[key]
+			setattr(self,key,datum)
+			contentList.append(str(datum))
+		self.readable = self.agency_id
+		if(hasattr(self,"agency_name")):
+			self.readable = self.agency_name
+		self.setId("".join(contentList).__hash__())
+	def getId(self):
+		return self.myId
+	def setId(self, myId:int):
+		self.myId = myId
+	def getReadable(self):
+		return self.readable
+
+
 class GtfsObjId:
-	def __init__(self, agency: str, myId : str):
+	def __init__(self, agency: Agency, myId : str):
 		self.agency = agency
 		self.myId = myId
 	def getAgency(self):
@@ -14,7 +33,7 @@ class GtfsObjId:
 	def getId(self):
 		return self.myId;
 	def getValue(self):
-		return '{}--{}'.format(self.agency,self.myId)
+		return '{}--{}'.format(self.agency.getReadable(),self.myId)
 	def __eq__(self, obj):
 		return isinstance(obj,GtfsObjId) and obj.getAgency()==self.getAgency() and obj.getId()==self.getId()
 	def __hash__(self):
@@ -28,9 +47,6 @@ base for all other gtfs models
 class GtfsObject:
 	def getId(self):
 		return self.myId
-
-	def setId(self, agency: str, myId : str):
-		self.myId = "{}---{}".format(agency,myId)
 
 	def setId(self, myId : GtfsObjId):
 		self.myId = myId
@@ -49,6 +65,7 @@ class GtfsObject:
 			setattr(self,key,self.tmpId)
 		else:
 			raise Exception("multiple agencies in gtfs")
+		# print("loading agency: {}".format(self.getId().getAgency()))
 			
 
 	def getOrMakeDictForAttr(self,attr):
