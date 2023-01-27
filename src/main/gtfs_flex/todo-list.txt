@@ -1,6 +1,25 @@
 okay so:
 
+feature:
+	add service ids
 
+feature:
+	latlngpopup with lat,lng rather than with whole words and colons
+
+
+feature:
+	overlap fix
+
+
+
+
+problem:
+	oh gods this needs tests
+
+problem:
+	locations containing other locations sometimes have center stop in weird stop.
+solution:
+	colision checking
 
 problem:
 	this whole thing is a garbage mess of scripts
@@ -12,36 +31,35 @@ solution:
 	- maybe dao should be able to consume objId and property and if tthe obj has that property/list it finds the list and saves that info for precomputed? not worth it actually, assume more cycles than memory
 	- maybe non-identifiers are only be created by the dao obj, and then there's a good spot to raise exception if someone tries to make two of the same
 
-
-problem:
-	stops are layered weirdly so they're hard to click on:
-solution:
-	- make getStopCenterListAndAddStopsToMap not add stops but just process info and make a list of stops
-	- get max&min x and y of all locations (bounding box)
-	- sort stops based on:
-		- does one box cover the other by more than n percent but the covering relationship is not reciprocal
-		- then relative size w/ a percentage
-		- bottom right to top left (back up option for truely garbage data which does happen)
-	- print stops
-
-problem:
-	can't just click on the the map for latlon in many situations
-solution:
-	not sure this will work, but can i make a top layer that's empty to click on?
-
 problem:
 	doesn't handle a single gtfs with multiple agencies, or one gtfs referencing other agencies 
 solution:
 	should be pretty simple fix, just need to add recognition of agency_id to core GtfsObj
 
-feature:
-	multiple agencies that work by layers
-		layer control element - confirm layers work
-		id class for models which includes agency and object type
-		read multiple files
 
 feature:
-	different maps for different days
+	describe active dates by trips
+solution:
+	min
+		- pull in service ids
+		- calc service id for given days
+		- add info to trip line
+	better
+		- find out what normal service looks like and include that on trip line
+
+feature:
+	show text for related layers only
+
+feature:
+	control layer for day and control layer for agency
+solution:
+	not sure how to do this, having a layer per day per agency is garbage performance.
+	a layer per service id
+		- layer per serviceId
+		- update or add interface to the layercontrol js to use mapping of agency and date to determine which layers are on
+
+feature:
+	popup click markers show what agency layer contains them or stop area or w/e
 
 feature:
 	vectors btwn locations arrows

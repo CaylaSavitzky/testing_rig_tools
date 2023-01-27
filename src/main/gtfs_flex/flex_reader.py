@@ -32,6 +32,7 @@ class FlexReader():
 		for datum in data:
 			datum["backup_id"] = itt
 			datum = clazz(datum,agency,dao)
+			print("in flex reader: {}".format(datum.getId().getValue()))
 			if(datum in dao):
 				print(dataHolder.get(datum.getId()).__dict__)
 				print(datum.__dict__)

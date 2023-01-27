@@ -38,14 +38,15 @@ class GtfsObject:
 	def __init__(self, initial_data,agencies,dao):
 		for key in initial_data:
 			datum = initial_data[key]
-			setattr(self,key,datum)
+			setattr(self,key,str(datum))
 			if (key in self.possibleIds):
-				self.tmpId = datum
+				self.tmpId = str(datum)
+				self.idKey = key
 		if(len(agencies)==1):
 			self.setId(GtfsObjId(list(agencies.values())[0],self.tmpId))
 		elif(len(agencies)==0):
 			raise Exception("no agencies in gtfs")
-			setattr(self,key,datum)
+			setattr(self,key,self.tmpId)
 		else:
 			raise Exception("multiple agencies in gtfs")
 			

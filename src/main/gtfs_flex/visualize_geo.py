@@ -21,7 +21,6 @@ abosolute possitioned items in folium
 """
 def addLegend(text,folium_map):
 	print("using map {}".format(folium_map))
-	text=text.replace("<","&lt;").replace(">","&gt;")
 	out = '<p style="padding: 24px; white-space: pre-wrap; font-size : 24; background-color : black; color : white;">{}</p>'.format(text)
 	FloatDiv(out,left=0,bottom=0).add_to(folium_map)
 
@@ -29,7 +28,7 @@ def addLegend(text,folium_map):
 
 
 
-debug = False
+debug = True
 def printDebug(stuffToPrint):
 	if debug == True:
 		print("".join(str(item) for item in stuffToPrint))
@@ -47,7 +46,7 @@ def addMarkerWithPopup(latLon,message,folium_map):
 	# print(latLon)
 	folium.map.Marker(
     [latLon[0], latLon[1]],
-    popup=folium.Popup(message,show=True,sticky=True)
+    popup=folium.Popup(message, sticky=True)
     ).add_to(folium_map)
 	# text = 'your text here'
 
@@ -59,11 +58,11 @@ def addMarkerWithPopup(latLon,message,folium_map):
 	# m.add_child(text)
 
 
-def addStopToMap(stop,folium_map):
-	folium.Circle(stop.getCenter()[0]).add_to(folium_map)
+def addCircleToMap(cord,style,folium_map):
+	folium.Circle(cord,style_function=lambda x:style).add_to(folium_map)
 
 
-def addGeoJsonToMapWithChild(geoJson,child,folium_map,style = None, noLatLongPopup=False):
+def addGeoJsonToMapWithChild(geoJson,folium_map,style, noLatLongPopup=False):
 	folium.GeoJson(geoJson,style_function=lambda x:style).add_to(folium_map)
 
 def createStickyPopup(text):
@@ -81,6 +80,9 @@ def enableShowMousePosition(folium_map):
 	# 	lat_formatter=formatter,
 	# 	lng_formatter=formatter,
 	# ).add_to(folium_map)
+	
+	# folium.ClickForLatLng().add_to(self.m)
+
 	folium_map.add_child(folium.LatLngPopup())
 
 

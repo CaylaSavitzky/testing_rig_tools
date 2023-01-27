@@ -4,17 +4,17 @@ from daovisualizer import *
 import shutil
 
 
-#colorlist=["#7e9a9a","#f6d8ac","#db9833","#2a6592","#8ec3eb"]
-
 colorlist=[
-"#ffb5bA",
-"#be0032",
-"#f38400",
-"#f3c300",
-"#008856",
-"#00a1c2",
-"#9a4eae",
-"#9a4eae"]
+"slateblue",
+"coral",
+"maroon",
+"goldenrod",
+"midnightblue",
+"crimson",
+"mediumseagreen",
+"olive",
+"deepskyblue",
+"darkorange"]
 
 
 

@@ -12,14 +12,14 @@ class DaoVisualizer:
 			enableShowMousePosition(self.m)
 
 	def generateMapFromDao(self,dao,colors=['blue','red'],includeLegend=True):
-		# folium.ClickForLatLng().add_to(self.m)
 		if(includeLegend):
 			self.addMergedLegend(dao)
 		agencyItt = 0
 		for agency in dao.getAgencies():
-			self.currentColor = colors[agencyItt%len(colors)]
-			print("using color {}, for agency {}".format(self.currentColor,agency.getAgency()))
-			layer = self.generateLayerForAgency(agency,dao)
+			color = colors[agencyItt%len(colors)]
+			print("using color {}, for agency {}".format(color,agency.getAgency()))
+			style = {'fillColor': color, 'lineColor': color}
+			layer = self.generateLayerForAgency(agency,style,dao)
 			agencyItt+=1
 		folium.LayerControl().add_to(self.m)
 
@@ -28,18 +28,25 @@ class DaoVisualizer:
 	def addMergedLegend(self,dao):
 		legendText = ""
 		for agency in dao.getAgencies():
-			legendText += "Agency: {} \n\n".format(agency.getValue())
-			legendText += "\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency))
+			print("prepping legend for agency: {}".format(dao.getGtfsObject(Agency,agency).readable))
+			legendText += '<span style="font-size:24px">Agency: {}</span> \n\n'.format(dao.getGtfsObject(Agency,agency).readable)
+			legendText+="\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency)).replace("<","&lt;").replace(">","&gt;")
+			legendText+="\n\n\n\n"
 		addLegend(legendText,self.m)
 
-	def generateLayerForAgency(self,agency,dao):
-		folium_layer = folium.FeatureGroup(name = agency.getValue()).add_to(self.m)
+	def generateLayerForAgency(self,agency,style,dao):
+		folium_layer = folium.FeatureGroup(name = dao.getGtfsObject(Agency,agency).readable).add_to(self.m)
 		for trip in dao.getTripsForAgency(agency):
 			itt = 0
 			trip = dao.getGtfsObject(Trip,trip)
 			stopsForStopTimes = list()
 			for stop_time in trip.stop_times:
-				stopsForStopTimes.append(self.getStopCenterListAndAddStopsToMap(trip.stop_times[stop_time],folium_layer))
+				stopsForStopTimes.append(
+					DaoVisualizer.getStopCenterListAndAddStopsToMap(
+						trip.stop_times[stop_time],
+						style,
+						dao.getGtfsObject(Agency,agency).readable,
+						folium_layer))
 			printDebug(['stops for stoptimes: ',stopsForStopTimes])
 			self.addLinesToMap(stopsForStopTimes,folium_layer)
 		return folium_layer
@@ -49,20 +56,20 @@ class DaoVisualizer:
 		self.m.save(output_folder)
 
 
-	def getStopCenterListAndAddStopsToMap(self,stop_time,folium_map):
+	def getStopCenterListAndAddStopsToMap(stop_time, style,readableAgencyName, folium_map):
 		stops = list()
 		st = stop_time
 		stop = st.stop
-		printDebug(['adding stoptime <',st.getId().getId(),'>  and stop <', str(st.stop.getId().getId()),'> of type: ', str(st.stop.type)])
-		if(stop.type==0):
-			DaoVisualizer.addStopToMap(stop,self.currentColor,folium_map)
-		elif(stop.type==1):
+		printDebug(['adding stoptime <',st.getId().getId(),'>  and stop <', str(st.stop.getId().getId()),'> of type: ', str(st.stop.getType())])
+		if(stop.getType()==0):
+			DaoVisualizer.addStopToMap(stop,style,readableAgencyName,folium_map)
+		elif(stop.getType()==1):
 			printDebug(['stop ',stop.getId().getId(),' is a location group with ', len(stop.substops), ' substops'])
 			for substop in st.stop.substops:
 				stop = st.stop.substops[substop]
-				DaoVisualizer.addLocationToMap(stop,self.currentColor,folium_map)
+				DaoVisualizer.addLocationToMap(stop,style,readableAgencyName,folium_map)
 		else:
-			DaoVisualizer.addLocationToMap(stop,self.currentColor,folium_map,)
+			DaoVisualizer.addLocationToMap(stop,style,readableAgencyName,folium_map,)
 		return stop_time.stop.getCenter()
 		
 	def addLinesToMap(self,locationsForStopTimes,folium_map):
@@ -83,15 +90,24 @@ class DaoVisualizer:
 			baseCords.extend(cordsForThisStopTime)
 			# print(baseCords)
 
-	def addLocationToMap(location,color,folium_map):
+	def addLocationToMap(location,style,readableAgencyName,folium_map):
 		printDebug(['adding location(stop) to map: ',location.getId().getId()])
 		addMarkerWithPopup(
 			location.getCenter()[0],
-			'location: {}{}'.format(str(location.getId().getAgency().getAgency()),
+			'location: {}{}'.format(readableAgencyName,
 				location.getId().getValue()),
 			folium_map)
-		style = {'fillColor': color, 'lineColor': color}
-		addGeoJsonToMapWithChild(location.initial_data["geometry"],folium.LatLngPopup(),folium_map,style = style)
+		addGeoJsonToMapWithChild(location.initial_data["geometry"],folium_map,style)
+
+	def addStopToMap(stop,style,readableAgencyName,folium_map):
+		printDebug(['adding stop to map: ',stop.getId().getId()])
+		addMarkerWithPopup(
+			stop.getCenter()[0],
+			'stop: {}{}'.format(readableAgencyName,
+				stop.getId().getValue()),
+			folium_map)
+		addCircleToMap(stop.getCenter()[0],style,folium_map)
+
 
 	def getMap(self):
 		return self.m

@@ -15,6 +15,9 @@ class Agency(GtfsObject):
 			contentList.append(str(datum))
 		self.setId(GtfsObjId(self.agency_id,"".join(contentList).__hash__()))
 		agencies[self.getId()]=self.getId()
+		self.readable = self.agency_id
+		if(hasattr(self,"agency_name")):
+			self.readable = self.agency_name
 
 class BookingRule(GtfsObject):
 	possibleIds = ["booking_rule_id"]
@@ -71,6 +74,10 @@ class Stop(GtfsObject):
 		self.putDictForAttr("substops",self.substops)
 		self.parentStops = dict()
 		self.putDictForAttr("parentStops",self.parentStops)
+		self.type = self.possibleIds.index(self.idKey)
+
+	def getType(self):
+		return self.type
 
 	def getBoundingBox(self):
 		if(hasattr(self,"boundingBox")):
