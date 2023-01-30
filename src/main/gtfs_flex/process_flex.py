@@ -39,19 +39,20 @@ outputPath = sys.argv.pop()
 dao = DaoImpl()
 daoVisualizer = DaoVisualizer()
 while len(sys.argv)>0:
-	print(sys.argv)
+	# print(sys.argv)
 	path = sys.argv.pop(0)
 	if(not os.path.exists(path)):
 		print('could not find: {}'.format(path))
 		continue
 	if(os.path.isdir(path)):
-		print("recursing into directory ".format(path))
+		print("recursing into directory {}".format(path))
 		printDebug(os.listdir(path))
 		sys.argv.extend(path+filename for filename in os.listdir(path))
 		continue
 	if(path[-4:]!=".zip"):
-		print("skipping ".format(path))
+		print("skipping {}".format(path))
 		continue
+		# should be recursing here mayby?
 	data_path = path.split('.')[0]
 	unzip(path,data_path)
 	FlexReader.readFlexDirectoryIntoDao(data_path,dao)

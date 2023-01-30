@@ -83,6 +83,7 @@ class FlexReader():
 
 
 	def readFlexDirectoryIntoDao(folder,dao, debug=False):
+		print("reading gtfs from {}".format(folder))
 		agencies = FlexReader.extractAgencyData(readTxtToDicts(folder,"agency.txt"),dao)
 		printDebug(agencies)
 		FlexReader.addData(readJsonToDicts(folder,"locations.geojson"),Stop,agencies,dao)
@@ -91,6 +92,10 @@ class FlexReader():
 		# for stop in dao.getStops():
 		# 	printDebug(stop, dao.getStops()[stop], dao.getStops()[stop].substops)
 		FlexReader.addData(readTxtToDicts(folder,"booking_rules.txt"),BookingRule,agencies,dao)
+		FlexReader.addData(readTxtToDicts(folder,"calendar_dates.txt"),ServiceSchedule,agencies,dao)
+		FlexReader.addData(readTxtToDicts(folder,"calendar.txt"),ServiceSchedule,agencies,dao)
+		# for service in dao.getServiceIds():
+		# 	printDebug("printing service id: {}".format(service))
 		# for route in dao.routes:
 		# 	printDebug(route, dao.routes[route])
 		FlexReader.addData(readTxtToDicts(folder,"trips.txt"),Trip,agencies,dao)

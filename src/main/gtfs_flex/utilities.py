@@ -43,7 +43,7 @@ def getRelatedObject(obj,attr,dao,containerType=None,raiseException=False,agency
 				raise Exception("{} {} {} claims to have associated {} {} {} but none could be found".format(
 					type(obj),obj,obj.getId().getValue(),
 					containerType,relatedObjId.getValue(),
-					str(relatedObjId.getAgency().getAgency())+"---"+str(relatedObjId.getId())))
+					str(relatedObjId.getAgency())+"---"+str(relatedObjId.getId())))
 			return relatedObj
 
 		
@@ -54,7 +54,7 @@ def isNotNullOrNan(val):
 			return True
 	return False
 
-debug = True
+debug = False
 def printDebug(stuffToPrint):
 	if debug == True:
 		if(not "__iter__" in dir(stuffToPrint)):

@@ -65,10 +65,13 @@ def getTravelInfoForTripsOfAgencyStrings(dao,agency):
 	printDebug(agency)
 	printDebug(agency.getReadable())
 	for trip in dao.getTripsForAgency(agency):
-		out = "for trip-{}: \n".format(trip.getId())
 		itt = 0
 		trip = dao.getGtfsObject(Trip,trip)
-		for stop_time in trip.stop_times:
+		out = "for trip-{}: {}\n".format(
+			trip.getId().getId(),trip.getServiceSchedule().strWithoutId())
+		stoptimes = trip.stop_times
+		stoptimes = sorted(stoptimes.items(),key=lambda x:x[1].stop_sequence)
+		for stop_time in stoptimes:
 			if(itt==0):
 			# if(itt<len(trip.stop_times)-1):
 				# if(itt>0):
@@ -77,7 +80,7 @@ def getTravelInfoForTripsOfAgencyStrings(dao,agency):
 			# if(itt==len(trip.stop_times)-1):
 			else:
 				out += ' to: ' 
-			out += stringifyStopTimeOutput(trip.stop_times[stop_time])
+			out += stringifyStopTimeOutput(stop_time[1])
 			out +="\n"
 			itt+=1
 		outputStringsContainer.append(out)

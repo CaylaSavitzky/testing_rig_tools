@@ -12,7 +12,9 @@ class Agency():
 			datum = initial_data[key]
 			setattr(self,key,datum)
 			contentList.append(str(datum))
-		self.readable = self.agency_id
+		self.readable=""
+		if(hasattr(self,"agency_id")):
+			self.readable = self.agency_id
 		if(hasattr(self,"agency_name")):
 			self.readable = self.agency_name
 		self.setId("".join(contentList).__hash__())
@@ -58,6 +60,10 @@ class GtfsObject:
 			if (key in self.possibleIds):
 				self.tmpId = str(datum)
 				self.idKey = key
+		if(not hasattr(self,"tmpId")):
+			print("{} has these attr: {}".format(self,dir(self)))
+			raise Exception("cannot find id for {} itt: {} from list of options: {} ".format(
+				type(self),self.file_itt,self.possibleIds))
 		if(len(agencies)==1):
 			self.setId(GtfsObjId(list(agencies.values())[0],self.tmpId))
 		elif(len(agencies)==0):

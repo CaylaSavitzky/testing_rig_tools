@@ -1,15 +1,6 @@
-okay so:
-
-feature:
-	add service ids
 
 feature:
 	latlngpopup with lat,lng rather than with whole words and colons
-
-
-feature:
-	overlap fix
-
 
 
 

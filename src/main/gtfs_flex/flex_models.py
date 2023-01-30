@@ -17,7 +17,24 @@ class BookingRule(GtfsObject):
 		super().__init__(initial_data,agencies,dao)
 	def getId(self):
 		return self.myId
-	
+
+class ServiceSchedule(GtfsObject):
+	possibleIds = ["service_id"]
+	def __init__(self, initial_data,agencies,dao):
+		super().__init__(initial_data,agencies,dao)
+	def __str__(self):
+		self.getId().getValue() + ":\n " + strWithoutId(self)
+	def strWithoutId(self):
+		if(hasattr(self,"start_date")):
+			rangeattribtes={"start":"start_date","end":"end_date"}
+			dayattribtes = {"m":"monday","t":"tuesday","w":"wednesday","th":"thursday","f":"friday","sa":"saturday","su":"sunday"}
+			return "".join(
+				out for key in rangeattribtes for out in " {}- {}".format(key, getattr(self,rangeattribtes[key]))) + "  days: "+  "".join(
+				out for key in dayattribtes for out in "{} ".format(
+					key if getattr(self,dayattribtes[key])=="1" else ""))
+		else:
+			return " not implemented for calendar_dates.txt"
+
 
 class Trip(GtfsObject):
 	possibleIds = ["trip_id"]
@@ -26,12 +43,15 @@ class Trip(GtfsObject):
 		self.putDictForAttr("trip",self.stop_times)
 		# printDebug("creating trip from " + str(initial_data))
 		super().__init__(initial_data,agencies,dao)
+		addOneToManyRelationship(self,"service_id",dao,ServiceSchedule)
 		# printDebug(dir(self))
 		# self.stop=dao.getGtfsObject(Stop,self.stop_id)
 		# if (self.stop==None):
 		# 	raise Exception("could not find stop " + datum)
 	def getId(self):
 		return self.myId
+	def getServiceSchedule(self):
+		return self.service
 	
 
 class StopTime(GtfsObject):
@@ -133,6 +153,7 @@ class DaoImpl:
 	StopTime:dict(),
 	Trip:dict(),
 	BookingRule:dict(),
+	ServiceSchedule:dict()
 	}
 	def __contains__(self,item):
 		if(not type(item) in self.data):
@@ -172,6 +193,8 @@ class DaoImpl:
 		return self.data[StopTime]
 	def getAgencies(self):
 		return self.data[Agency]
+	def getServiceIds(self):
+		return self.data[ServiceSchedule]
 	def getTripsForAgency(self,agency):
 		# printDebug(self.data[Trip])
 		# printDebug(agency)
