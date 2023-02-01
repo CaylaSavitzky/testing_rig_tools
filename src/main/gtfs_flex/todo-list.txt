@@ -8,7 +8,7 @@ problem:
 	oh gods this needs tests
 
 problem:
-	locations containing other locations sometimes have center stop in weird stop.
+	locations containing other locations sometimes have center stop in weird location.
 solution:
 	colision checking
 
@@ -17,29 +17,21 @@ problem:
 solution:
 	- dao should take class and id and return val & accept obj and put into right location
 		- would it make sense to have the dao handle making reciprocal relationships btwn relivant classes? tbh i don't think so, that feels wrong for access obj
-	- gtfsObjs shouldn't have other objs attatched but instead identifiers (maybe a list of identifiers)
+	- really need to decide if this is a dao pattern or not, but dao and objects contain references to other objects and it's confusing
 	- dao should be able to consume a list of identifiers 
-	- maybe dao should be able to consume objId and property and if tthe obj has that property/list it finds the list and saves that info for precomputed? not worth it actually, assume more cycles than memory
 	- maybe non-identifiers are only be created by the dao obj, and then there's a good spot to raise exception if someone tries to make two of the same
+	- there's still that mess between visualize-geo and daovisualizer that needs to be seperated out. i was kinda imagining visualize-geo as some kind of utilities class and dao-visualizer as something else
 
 problem:
 	doesn't handle a single gtfs with multiple agencies, or one gtfs referencing other agencies 
 solution:
 	should be pretty simple fix, just need to add recognition of agency_id to core GtfsObj
 
-
-feature:
-	describe active dates by trips
-solution:
-	min
-		- pull in service ids
-		- calc service id for given days
-		- add info to trip line
-	better
-		- find out what normal service looks like and include that on trip line
-
 feature:
 	show text for related layers only
+solution:
+	option that would delight the folium community: find a way to integrate the floating text object with a leaflet class and release
+	
 
 feature:
 	control layer for day and control layer for agency
@@ -48,9 +40,12 @@ solution:
 	a layer per service id
 		- layer per serviceId
 		- update or add interface to the layercontrol js to use mapping of agency and date to determine which layers are on
+			- requires actually integrating with leaflet
 
 feature:
 	popup click markers show what agency layer contains them or stop area or w/e
 
 feature:
 	vectors btwn locations arrows
+solution:
+	this one's actually partially implemented connectAToBOnMap && getStopCenterListAndAddStopsToMap && another something or two

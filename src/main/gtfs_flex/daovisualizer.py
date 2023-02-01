@@ -1,8 +1,14 @@
+"""
+author caylasavitzky
+
+
+takes a dao and creates map
+intended to only process the dao data into a form that is prep for the visualizing tool
+"""
+
 from visualize_geo import *
-from flex_cli import *
-"""
-takes dao and creates map
-"""
+from dao_printer import *
+
 
 class DaoVisualizer:
 

@@ -1,3 +1,10 @@
+"""
+author caylasavitzky
+
+
+intended to do the actual visualizing
+"""
+
 import geopandas
 import folium
 from flex_reader import *

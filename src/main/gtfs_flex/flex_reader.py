@@ -1,5 +1,8 @@
-# /Users/caylasavitzky/Downloads/chadroncitytransit-ne-us--flex-v2/stop_times.txt
+"""
+author caylasavitzky
 
+reads in flex data from an unzipped flex file
+"""
 import pandas
 import json
 from flex_models import *

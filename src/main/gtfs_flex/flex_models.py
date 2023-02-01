@@ -1,4 +1,6 @@
 """
+author CaylaSavitzky
+
 models for flex classes.
 add more as needed.
 """

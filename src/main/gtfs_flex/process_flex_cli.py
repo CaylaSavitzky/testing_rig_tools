@@ -1,4 +1,4 @@
-from flex_cli import *
+from dao_printer import *
 from zipfile import ZipFile
 from daovisualizer import *
 import shutil
@@ -21,6 +21,7 @@ colorlist=[
 
 def unzip(file,data_path):  
 	# loading the temp.zip and creating a zip object
+	print("unzipping: {}".format(file))
 	with ZipFile(file, 'r') as zObject:
 		zObject.extractall(path=data_path)
 
@@ -47,6 +48,7 @@ while len(sys.argv)>0:
 	if(os.path.isdir(path)):
 		print("recursing into directory {}".format(path))
 		printDebug(os.listdir(path))
+		path = (path if path[-1]=="/" else path+"/")
 		sys.argv.extend(path+filename for filename in os.listdir(path))
 		continue
 	if(path[-4:]!=".zip"):

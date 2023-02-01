@@ -1,4 +1,8 @@
-# /Users/caylasavitzky/Downloads/chadroncitytransit-ne-us--flex-v2/stop_times.txt
+"""
+author caylasavitzky
+
+turns the travel details of an agency into a string
+"""
 
 import pandas
 import sys
@@ -6,13 +10,6 @@ import json
 from flex_models import *
 from flex_reader import *
 
-
-
-
-# class ServiceId:
-# 	def __init__(self, initial_data):
-# 		for key in initial_data:
-# 			setattr(self, key, initial_data[key])
 
 
 
@@ -85,25 +82,3 @@ def getTravelInfoForTripsOfAgencyStrings(dao,agency):
 			itt+=1
 		outputStringsContainer.append(out)
 	return outputStringsContainer
-
-
-
-
-
-
-
-if __name__ == "__main__":
-	printDebug("running flex_cli")
-	folder = sys.argv[1]
-
-	dao = DaoImpl()
-	FlexReader.readFlexDirectoryIntoDao(folder,dao)
-
-	# for trip in dao.trips:
-	# 	out = printDebug("\n",trip, dao.trips[trip])
-	# 	for stop_time in dao.trips[trip].stop_times:
-	# 		st = dao.trips[trip].stop_times[stop_time]
-	# 		printDebug(str(st.getId()), str(st.stop.getId()))
-
-	for out in getTravelInfoForTripsStrings(dao):
-		printDebug(out+"\n")

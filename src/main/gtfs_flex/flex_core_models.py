@@ -1,3 +1,9 @@
+"""
+author Cayla Savitzky
+
+the core bits and parts that the flex models implement and work with
+"""
+
 from abc import ABC, abstractmethod
 
 class Cord(list):

@@ -1,4 +1,6 @@
 """
+author Cayla Savitzky
+
 Mishmash of utilities that it seemed odd to keep in one place
 """
 from flex_core_models import *
