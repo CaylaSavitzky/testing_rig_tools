@@ -16,14 +16,14 @@ def readTxtToDicts(folder,filename):
 	try:
 		return pandas.read_csv(folder+'/'+filename).to_dict(orient='records')
 	except FileNotFoundError:
-		printDebug("could not read file: "+ folder+'/'+filename)
+		debug.print("could not read file: "+ folder+'/'+filename)
 		return None
 
 def readJsonToDicts(folder,filename):
 	try:
 		return json.load(open(folder+'/'+filename))['features']
 	except FileNotFoundError:
-		printDebug("could not read file: "+ folder+'/'+filename)
+		debug.print("could not read file: "+ folder+'/'+filename)
 		return None
 
 class FlexReader():
@@ -36,10 +36,10 @@ class FlexReader():
 			datum["file_itt"] = itt
 			datum = Agency(datum,dao)
 			extractedData[datum]=datum
-			printDebug("in flex reader: {}".format(datum.getId()))
+			debug.print("in flex reader: {}".format(datum.getId()))
 			if(datum in dao):
-				printDebug(dataHolder.get(datum.getId()).__dict__)
-				printDebug(datum.__dict__)
+				debug.print(dataHolder.get(datum.getId()).__dict__)
+				debug.print(datum.__dict__)
 				raise Exception("datum ids and equivilents must be unique");
 			dao.addGftsObject(datum)
 			itt += 1
@@ -53,10 +53,10 @@ class FlexReader():
 		for datum in data:
 			datum["file_itt"] = itt
 			datum = clazz(datum,agency,dao)
-			printDebug("in flex reader: {}".format(datum.getId().getValue()))
+			debug.print("in flex reader: {}".format(datum.getId().getValue()))
 			if(datum in dao):
-				printDebug(dataHolder.get(datum.getId()).__dict__)
-				printDebug(datum.__dict__)
+				debug.print(dataHolder.get(datum.getId()).__dict__)
+				debug.print(datum.__dict__)
 				raise Exception("datum ids and equivilents must be unique");
 			dao.addGftsObject(datum)
 			itt += 1
@@ -77,36 +77,36 @@ class FlexReader():
 				if(substop==None):
 					raise Exception("location group ",stop.getId().getValue()," requires substop ",stop.location_id)
 				else:
-					# printDebug('adding substop ',substopId,' to stop ',stop.getId(), '<',stop,'>')
+					# debug.print('adding substop ',substopId,' to stop ',stop.getId(), '<',stop,'>')
 					if(type(substop)!=Stop):
 						raise Exception("stop {}'s substop {} must be of type Stop".format(stop,substop))
 					stop.substops[substopId] = substop
 					substop.parentStops[stop.getId()]=stop
-					# printDebug(stop.getId(),' has ', len(stop.substops), ' substops')
+					# debug.print(stop.getId(),' has ', len(stop.substops), ' substops')
 
 
-	def readFlexDirectoryIntoDao(folder,dao, debug=False):
+	def readFlexDirectoryIntoDao(folder,dao):
 		print("reading gtfs from {}".format(folder))
 		agencies = FlexReader.extractAgencyData(readTxtToDicts(folder,"agency.txt"),dao)
-		printDebug(agencies)
+		debug.print(agencies)
 		FlexReader.addData(readJsonToDicts(folder,"locations.geojson"),Stop,agencies,dao)
 		FlexReader.addData(readTxtToDicts(folder,"stops.txt"),Stop,agencies,dao)
 		FlexReader.processLocationGroups(readTxtToDicts(folder,"location_groups.txt"),agencies,dao)
 		# for stop in dao.getStops():
-		# 	printDebug(stop, dao.getStops()[stop], dao.getStops()[stop].substops)
+		# 	debug.print(stop, dao.getStops()[stop], dao.getStops()[stop].substops)
 		FlexReader.addData(readTxtToDicts(folder,"booking_rules.txt"),BookingRule,agencies,dao)
 		FlexReader.addData(readTxtToDicts(folder,"calendar_dates.txt"),ServiceSchedule,agencies,dao)
 		FlexReader.addData(readTxtToDicts(folder,"calendar.txt"),ServiceSchedule,agencies,dao)
 		# for service in dao.getServiceIds():
-		# 	printDebug("printing service id: {}".format(service))
+		# 	debug.print("printing service id: {}".format(service))
 		# for route in dao.routes:
-		# 	printDebug(route, dao.routes[route])
+		# 	debug.print(route, dao.routes[route])
 		FlexReader.addData(readTxtToDicts(folder,"trips.txt"),Trip,agencies,dao)
 		# for trip in dao.getTrips():
-		# 	printDebug(trip, dao.getTrips()[trip])
+		# 	debug.print(trip, dao.getTrips()[trip])
 		FlexReader.addData(readTxtToDicts(folder,"stop_times.txt"),StopTime,agencies,dao)
 		# for stoptime in dao.stop_times:
-		# 	printDebug(stoptime, dao.stop_times[stoptime].stop.getId())
+		# 	debug.print(stoptime, dao.stop_times[stoptime].stop.getId())
 
 
 

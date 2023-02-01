@@ -3,6 +3,7 @@ from zipfile import ZipFile
 from daovisualizer import *
 import shutil
 import os
+import sys
 
 
 colorlist=[
@@ -25,49 +26,67 @@ def unzip(file,data_path):
 	with ZipFile(file, 'r') as zObject:
 		zObject.extractall(path=data_path)
 
-argsString = sys.argv.pop(0)
+def processFilesIntoDao(args,dao):
+	while len(args)>0:
+		# print(sys.argv)
+		path = args.pop(0)
+		if(not os.path.exists(path)):
+			print('could not find: {}'.format(path))
+			continue
+		if(os.path.isdir(path)):
+			print("recursing into directory {}".format(path))
+			path = (path if path[-1]=="/" else path+"/")
+			debug.print(os.listdir(path))
+			args.extend(path+filename for filename in os.listdir(path))
+			continue
+		if(path[-4:]!=".zip"):
+			print("skipping {}".format(path))
+			continue
+			# should be recursing here mayby?
+		data_path = path.split('.')[0]
+		unzip(path,data_path)
+		FlexReader.readFlexDirectoryIntoDao(data_path,dao)
+		shutil.rmtree(data_path)
 
-includeLegend = True
-if(sys.argv[0]=="-hideLegend"or sys.argv[0]== "-h"):
-	includeLegend=False
-	sys.argv.pop(0)
-
-
-
-
-outputPath = sys.argv.pop()
-
-dao = DaoImpl()
-daoVisualizer = DaoVisualizer()
-while len(sys.argv)>0:
-	# print(sys.argv)
-	path = sys.argv.pop(0)
-	if(not os.path.exists(path)):
-		print('could not find: {}'.format(path))
-		continue
-	if(os.path.isdir(path)):
-		print("recursing into directory {}".format(path))
-		printDebug(os.listdir(path))
-		path = (path if path[-1]=="/" else path+"/")
-		sys.argv.extend(path+filename for filename in os.listdir(path))
-		continue
-	if(path[-4:]!=".zip"):
-		print("skipping {}".format(path))
-		continue
-		# should be recursing here mayby?
-	data_path = path.split('.')[0]
-	unzip(path,data_path)
-	FlexReader.readFlexDirectoryIntoDao(data_path,dao)
-	shutil.rmtree(data_path)
+def updateOutputPath(outputPath):
+	if(outputPath[-1] =="/"):
+		outputPath+="processed_flex_map"
+	if(outputPath[-5:]!=".html"):
+		outputPath+=".html"
+	return outputPath
 
 
-daoVisualizer.generateMapFromDao(dao,colors = colorlist,includeLegend=includeLegend)
-if(outputPath[-1] =="/"):
-	outputPath+="processed_flex_map"
-if(outputPath[-5:]!=".html"):
-	outputPath+=".html"
-daoVisualizer.save(outputPath)
+def run(args,save_graph=True):
+	argsString = args.pop(0)
 
-print("firefox "+outputPath)
+	includeLegend = True
+	debug.should_print=True
 
+	arguments = list(filter(lambda arg: arg[0]=="-", sys.argv))
 
+	if("-debug" in arguments or "-d" in arguments):
+		print("printing in debug mode")
+		debug.should_print=True
+
+	if("-hideLegend" in arguments or "-h" in arguments):
+		print("hiding legend")
+		includeLegend=False
+
+	args = list(filter(lambda arg: arg[0]!="-", sys.argv))
+	debug.print(args)
+
+	outputPath = args.pop()
+
+	dao = DaoImpl()
+	processFilesIntoDao(args,dao)
+
+	daoVisualizer = DaoVisualizer()
+	daoVisualizer.generateMapFromDao(dao,colors = colorlist,includeLegend=includeLegend)
+	outputPath = updateOutputPath(outputPath)
+	if(save_graph):
+		daoVisualizer.save(outputPath)
+
+	print("firefox "+outputPath)
+
+if __name__ == "__main__":
+	run(sys.argv)

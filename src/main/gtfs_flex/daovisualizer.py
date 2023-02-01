@@ -24,7 +24,7 @@ class DaoVisualizer:
 		for agencyId in dao.getAgencies():
 			agency=dao.getGtfsObject(Agency,agencyId)
 			color = colors[agencyItt%len(colors)]
-			printDebug("using color {}, for agency {}".format(color,agency))
+			debug.print("using color {}, for agency {}".format(color,agency))
 			style = {'fillColor': color, 'lineColor': color}
 			layer = self.generateLayerForAgency(agency,style,dao)
 			agencyItt+=1
@@ -36,7 +36,7 @@ class DaoVisualizer:
 		legendText = ""
 		for agencyId in dao.getAgencies():
 			agency=dao.getGtfsObject(Agency,agencyId)
-			printDebug("prepping legend for agency: {}".format(agency.readable))
+			debug.print("prepping legend for agency: {}".format(agency.readable))
 			legendText += '<span style="font-size:24px">Agency: {}</span> \n\n'.format(agency.readable)
 			legendText+="\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency)).replace("<","&lt;").replace(">","&gt;")
 			legendText+="\n\n\n\n"
@@ -49,9 +49,9 @@ class DaoVisualizer:
 			trip = dao.getGtfsObject(Trip,trip)
 			# stopsForStopTimes = list()
 			for stop_time in trip.stop_times:
-				printDebug("stoptime is {}".format(stop_time))
+				debug.print("stoptime is {}".format(stop_time))
 				stop_time = dao.getGtfsObject(StopTime,stop_time)
-				printDebug("stoptime is {}".format(stop_time))
+				debug.print("stoptime is {}".format(stop_time))
 				DaoVisualizer.addStopsToSet(stop_time.stop,stops)
 				# stopsForStopTimes.extend(
 				# 	DaoVisualizer.getStopsForStopTime(
@@ -59,7 +59,7 @@ class DaoVisualizer:
 				# 		style,
 				# 		agency.readable,
 				# 		folium_layer))
-			# printDebug(['stops for stoptimes: ',stopsForStopTimes])
+			# debug.print(['stops for stoptimes: ',stopsForStopTimes])
 			# if(printLines):
 			# 	self.addLinesToMap(stopsForStopTimes,folium_layer)
 		DaoVisualizer.addStopsToMap(stops,style,agency.getReadable(),folium_layer)
@@ -78,7 +78,7 @@ class DaoVisualizer:
 		elif(stop.getType()==1):
 			for substopId in stop.substops:
 				substop = stop.substops[substopId]
-				printDebug("recursing to add substop {} from stop {}".format(substop,stop))
+				debug.print("recursing to add substop {} from stop {}".format(substop,stop))
 				DaoVisualizer.addStopsToSet(substop,stops,depth=depth+1)
 		else:
 			stops.add(stop)
@@ -101,7 +101,7 @@ class DaoVisualizer:
 	# 	if(stop.getType()==0):
 	# 		DaoVisualizer.addClassicStopToMap(stop,style,readableAgencyName,folium_map)
 	# 	elif(stop.getType()==1):
-	# 		printDebug(['stop ',stop.getId().getId(),' is a location group with ', len(stop.substops), ' substops'])
+	# 		debug.print(['stop ',stop.getId().getId(),' is a location group with ', len(stop.substops), ' substops'])
 	# 		for substop in st.stop.substops:
 	# 			stop = st.stop.substops[substop]
 	# 			DaoVisualizer.addLocationToMap(stop,style,readableAgencyName,folium_map)
@@ -113,11 +113,11 @@ class DaoVisualizer:
 		stops = list()
 		st = stop_time
 		stop = st.stop
-		printDebug(['adding stoptime <',st.getId().getId(),'>  and stop <', str(st.stop.getId().getId()),'> of type: ', str(st.stop.getType())])
+		debug.print(['adding stoptime <',st.getId().getId(),'>  and stop <', str(st.stop.getId().getId()),'> of type: ', str(st.stop.getType())])
 		if(stop.getType()==0):
 			DaoVisualizer.addClassicStopToMap(stop,style,readableAgencyName,folium_map)
 		elif(stop.getType()==1):
-			printDebug(['stop ',stop.getId().getId(),' is a location group with ', len(stop.substops), ' substops'])
+			debug.print(['stop ',stop.getId().getId(),' is a location group with ', len(stop.substops), ' substops'])
 			for substopId in st.stop.substops:
 				stop = st.stop.substops[substopId]
 				DaoVisualizer.addLocationToMap(stop,style,readableAgencyName,folium_map)
@@ -131,30 +131,30 @@ class DaoVisualizer:
 		for stop_time_locations in locationsForStopTimes:
 			cordsForThisStopTime = list()
 			for cord in stop_time_locations:
-				# printDebug("cord in stop_time_locations")
+				# debug.print("cord in stop_time_locations")
 				if(cord not in cordsForThisStopTime):
-					# printDebug("cord not in cordsForThisStopTime")
+					# debug.print("cord not in cordsForThisStopTime")
 					for baseCord in baseCords:
 						connectAToBOnMap([baseCord,cord],folium_map)
 					if(not cord in baseCords):
-						# printDebug("not cord in baseCords")
+						# debug.print("not cord in baseCords")
 						cordsForThisStopTime.append(cord)
-			# printDebug(cordsForThisStopTime)
+			# debug.print(cordsForThisStopTime)
 			baseCords.extend(cordsForThisStopTime)
-			# printDebug(baseCords)
+			# debug.print(baseCords)
 
 	def addLocationToMap(location,style,readableAgencyName,folium_map):
-		printDebug(['adding location(stop) to map: ',location.getId().getId()])
+		debug.print(['adding location(stop) to map: ',location.getId().getId()])
 		addMarkerWithPopup(
 			location.getCenter()[0],
 			'location: {}{}'.format(readableAgencyName,
 				location.getId().getValue()),
 			folium_map)
-		printDebug("adding location to map: {}".format(location.getId().getValue()))
+		debug.print("adding location to map: {}".format(location.getId().getValue()))
 		addGeoJsonToMapWithChild(location.initial_data["geometry"],folium_map,style)
 
 	def addClassicStopToMap(stop,style,readableAgencyName,folium_map):
-		printDebug(['adding stop to map: ',stop.getId().getId()])
+		debug.print(['adding stop to map: ',stop.getId().getId()])
 		addMarkerWithPopup(
 			stop.getCenter()[0],
 			'stop: {}{}'.format(readableAgencyName,

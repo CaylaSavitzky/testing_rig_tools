@@ -43,10 +43,10 @@ class Trip(GtfsObject):
 	def __init__(self, initial_data,agencies,dao):
 		self.stop_times = dict()
 		self.putDictForAttr("trip",self.stop_times)
-		# printDebug("creating trip from " + str(initial_data))
+		# debug.print("creating trip from " + str(initial_data))
 		super().__init__(initial_data,agencies,dao)
 		addOneToManyRelationship(self,"service_id",dao,ServiceSchedule)
-		# printDebug(dir(self))
+		# debug.print(dir(self))
 		# self.stop=dao.getGtfsObject(Stop,self.stop_id)
 		# if (self.stop==None):
 		# 	raise Exception("could not find stop " + datum)
@@ -65,8 +65,8 @@ class StopTime(GtfsObject):
 		self.stop_id = str(self.stop_id)
 		addOneToManyRelationship(self,"stop_id",dao,Stop)
 		addOneToManyRelationship(self,"trip_id",dao,Trip)
-		# printDebug("\n\n")
-		# printDebug("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
+		# debug.print("\n\n")
+		# debug.print("StopTime: ", self.myId, " tripId ", self.trip_id, "Trip tripId ", self.trip.myId)
 		# printShortHandTripInfo(self.trip)
 		if(isNotNullOrNan(self.pickup_booking_rule_id)):
 			addOneToManyRelationship(self,"pickup_booking_rule_id",dao,BookingRule)
@@ -136,11 +136,11 @@ class Stop(GtfsObject):
 		else:
 			#if switch to geojson replace this with better built in method
 			bB = self.getBoundingBox()
-			# printDebug("for stop:{} using boundingBox: {}".format(self.getId().getId(),bB))
+			# debug.print("for stop:{} using boundingBox: {}".format(self.getId().getId(),bB))
 			invertedCord = [
 			((bB[1][self.yNum]+bB[0][self.yNum])/2),
 			((bB[1][self.xNum]+bB[0][self.xNum])/2)]
-			# printDebug("adding cord: {}".format(invertedCord))
+			# debug.print("adding cord: {}".format(invertedCord))
 			out.append(invertedCord)
 		return out
 	def getId(self):
@@ -181,7 +181,7 @@ class DaoImpl:
 			if(typeAgencyHolder==None):
 				typeAgencyHolder = dict()
 				typeHolder[agency]=typeAgencyHolder
-			# printDebug("adding trip {} to agency {}".format(obj.getId().getValue(),agency.getId()))
+			# debug.print("adding trip {} to agency {}".format(obj.getId().getValue(),agency.getId()))
 			typeAgencyHolder[obj.getId()]=obj
 		self.data.get(type(obj))[obj.getId()] = obj
 	def getDict(self,clazz):
@@ -198,8 +198,8 @@ class DaoImpl:
 	def getServiceIds(self):
 		return self.data[ServiceSchedule]
 	def getTripsForAgency(self,agency):
-		# printDebug(self.data[Trip])
-		# printDebug(agency)
+		# debug.print(self.data[Trip])
+		# debug.print(agency)
 		return self.data[Trip].get(agency)
 	def getContainer(self,objType):
 		return self.data.get(objType)
@@ -209,7 +209,7 @@ class DaoImpl:
 
 
 def printShortHandTripInfo(trip):
-	out = printDebug("\n",trip.myId, trip)
+	out = debug.print("\n",trip.myId, trip)
 	for stop_time in trip.stop_times:
 		st = trip.stop_times[stop_time]
-		printDebug(str(st.myId), str(st.stop.myId))
+		debug.print(str(st.myId), str(st.stop.myId))

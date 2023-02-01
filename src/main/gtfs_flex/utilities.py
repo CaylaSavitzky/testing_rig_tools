@@ -39,7 +39,7 @@ def getRelatedObject(obj,attr,dao,containerType=None,raiseException=False,agency
 			if(container==None):
 				raise Exception("no container of type: {} in dao".format(containerType))
 			relatedObjId = GtfsObjId(agency,getattr(obj,attr))
-			printDebug("looking for: {} {}".format(containerType,relatedObjId))
+			debug.print("looking for: {} {}".format(containerType,relatedObjId))
 			relatedObj = dao.getGtfsObject(containerType,relatedObjId)
 			if(relatedObj==None and raiseException):
 				raise Exception("{} {} {} claims to have associated {} {} {} but none could be found".format(
@@ -56,10 +56,13 @@ def isNotNullOrNan(val):
 			return True
 	return False
 
-debug = False
-def printDebug(stuffToPrint):
-	if debug == True:
-		if(not "__iter__" in dir(stuffToPrint)):
-			print(stuffToPrint)
-		else:
-			print("".join(str(item) for item in stuffToPrint))
+class debugPrinter():
+	should_print = False
+	def print(self,stuffToPrint):
+		if self.should_print == True:
+			if(not "__iter__" in dir(stuffToPrint)):
+				print(stuffToPrint)
+			else:
+				print("".join(str(item) for item in stuffToPrint))
+debug = debugPrinter()
+

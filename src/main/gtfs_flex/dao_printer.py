@@ -57,10 +57,10 @@ def stringifyStopTimeOutput(st):
 
 def getTravelInfoForTripsOfAgencyStrings(dao,agency):
 	outputStringsContainer = list()
-	printDebug(dao.data[Trip])
-	printDebug(list(dao.data[Trip].keys())[0])
-	printDebug(agency)
-	printDebug(agency.getReadable())
+	debug.print(dao.data[Trip])
+	debug.print(list(dao.data[Trip].keys())[0])
+	debug.print(agency)
+	debug.print(agency.getReadable())
 	for trip in dao.getTripsForAgency(agency):
 		itt = 0
 		trip = dao.getGtfsObject(Trip,trip)
