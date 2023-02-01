@@ -28,7 +28,7 @@ def unzip(file,data_path):
 argsString = sys.argv.pop(0)
 
 includeLegend = True
-if(sys.argv[0]=="hideLegend"):
+if(sys.argv[0]=="-hideLegend"or sys.argv[0]== "-h"):
 	includeLegend=False
 	sys.argv.pop(0)
 
