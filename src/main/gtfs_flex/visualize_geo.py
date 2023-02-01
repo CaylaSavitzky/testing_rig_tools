@@ -5,17 +5,11 @@ author caylasavitzky
 intended to do the actual visualizing
 """
 
-import geopandas
+# import geopandas
 import folium
 from flex_reader import *
-from folium.plugins import MousePosition, FloatImage
-import branca
+# from folium.plugins import MousePosition, FloatImage
 from FloatDiv import FloatDiv
-
-
-
-from PIL import Image, ImageDraw, ImageFont
-import base64
 
 
 JENKITY_PAGE_WIDTH = 920
@@ -69,6 +63,7 @@ def createStickyPopup(text):
 
 
 def enableShowMousePosition(folium_map):
+	folium_map.add_child(folium.LatLngPopup())
 	# formatter = "function(num) {return L.Util.formatNum(num, 3) + ' º ';};"
 	# MousePosition(
 	# 	position="bottomright",
@@ -82,7 +77,6 @@ def enableShowMousePosition(folium_map):
 	
 	# folium.ClickForLatLng().add_to(self.m)
 
-	folium_map.add_child(folium.LatLngPopup())
 
 
 # def addLegend(text,folium_map=None):
