@@ -103,12 +103,17 @@ class Stop(GtfsObject):
 		if(self.type==1):
 			raise Exception("boundingBox not implemented for locationgroups")
 		else:
+			# REPLACE THIS WITH GET CENTER FROM PY GEOJSON@@
+			cords = self.initial_data["geometry"]["coordinates"]
+			xmin = cords[0][self.xNum]
+			while (type(xmin)!=float and type(xmin)!=int):
+				cords=cords[0]
+				xmin = cords[0][self.xNum]
 
-			xmin = self.initial_data["geometry"]["coordinates"][0][0][self.xNum]
 			xmax = xmin
-			ymin = self.initial_data["geometry"]["coordinates"][0][0][self.yNum]
+			ymin = cords[0][self.yNum]
 			ymax = ymin
-			for cord in self.initial_data["geometry"]["coordinates"][0]:
+			for cord in cords:
 				x=cord[self.xNum]
 				if(x<xmin):
 					xmin=x
@@ -124,6 +129,7 @@ class Stop(GtfsObject):
 			self.ymin = ymin
 			self.ymax = ymax
 			self.boundingBox=[[self.xmin,self.ymin],[self.xmax,self.ymax]]
+			print(self.boundingBox)
 			return self.boundingBox
 
 	def getCenter(self):
@@ -137,6 +143,7 @@ class Stop(GtfsObject):
 			#if switch to geojson replace this with better built in method
 			bB = self.getBoundingBox()
 			# debug.print("for stop:{} using boundingBox: {}".format(self.getId().getId(),bB))
+			print((bB[1][self.yNum],bB[0][self.yNum]))
 			invertedCord = [
 			((bB[1][self.yNum]+bB[0][self.yNum])/2),
 			((bB[1][self.xNum]+bB[0][self.xNum])/2)]

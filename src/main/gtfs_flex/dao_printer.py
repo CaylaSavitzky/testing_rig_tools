@@ -78,7 +78,7 @@ def getTravelInfoForTripsOfAgencyStrings(dao,agency):
 			else:
 				out += ' to: ' 
 			out += stringifyStopTimeOutput(stop_time[1])
-			out +="\n"
+			# out +="\n"
 			itt+=1
 		outputStringsContainer.append(out)
 	return outputStringsContainer
