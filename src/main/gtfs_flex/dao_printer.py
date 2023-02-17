@@ -41,11 +41,11 @@ def stringifyStopTimeOutput(st):
 	if(hasattr(st,"start_pickup_drop_off_window")):
 		out += "\n which is allowed between the hours of: " + str(st.start_pickup_drop_off_window) + " and "
 	else:
-		out += " which has no pickup window and has a dropoff window of "
+		out += "\n which has no pickup window and has a dropoff window of "
 	if(hasattr(st,"end_pickup_drop_off_window")):
 		out += str(st.end_pickup_drop_off_window) +".\n"
 	else:
-		out += " no end_pickup_drop_off_window"
+		out += " no end_pickup_drop_off_window\n"
 	if(hasattr(st,"pickup_booking_rule_id")):
 		out += stringifyBookingInfo(st.pickup_booking_rule_id)
 	elif(hasattr(st,"drop_off_booking_rule_id")):

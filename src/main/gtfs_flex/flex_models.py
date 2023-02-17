@@ -129,7 +129,6 @@ class Stop(GtfsObject):
 			self.ymin = ymin
 			self.ymax = ymax
 			self.boundingBox=[[self.xmin,self.ymin],[self.xmax,self.ymax]]
-			print(self.boundingBox)
 			return self.boundingBox
 
 	def getCenter(self):
@@ -143,7 +142,6 @@ class Stop(GtfsObject):
 			#if switch to geojson replace this with better built in method
 			bB = self.getBoundingBox()
 			# debug.print("for stop:{} using boundingBox: {}".format(self.getId().getId(),bB))
-			print((bB[1][self.yNum],bB[0][self.yNum]))
 			invertedCord = [
 			((bB[1][self.yNum]+bB[0][self.yNum])/2),
 			((bB[1][self.xNum]+bB[0][self.xNum])/2)]

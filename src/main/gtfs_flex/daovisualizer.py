@@ -23,6 +23,8 @@ class DaoVisualizer:
 		agencyItt = 0
 		for agencyId in dao.getAgencies():
 			agency=dao.getGtfsObject(Agency,agencyId)
+			if(agency==None or dao.getTripsForAgency(agency)==None):
+				continue
 			color = colors[agencyItt%len(colors)]
 			debug.print("using color {}, for agency {}".format(color,agency))
 			style = {'fillColor': color, 'lineColor': color}
@@ -36,6 +38,8 @@ class DaoVisualizer:
 		legendText = ""
 		for agencyId in dao.getAgencies():
 			agency=dao.getGtfsObject(Agency,agencyId)
+			if(agency==None or dao.getTripsForAgency(agency)==None):
+				continue
 			debug.print("prepping legend for agency: {}".format(agency.readable))
 			legendText += '<span style="font-size:24px">Agency: {}</span> \n\n'.format(agency.readable)
 			legendText+="\n".join(getTravelInfoForTripsOfAgencyStrings(dao,agency)).replace("<","&lt;").replace(">","&gt;")
