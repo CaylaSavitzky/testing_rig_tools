@@ -8,10 +8,11 @@ class GtfsRtAccessTool:
     print(url)
     if url.startswith('file://'):
       localAddress=url.replace('file://', '')
-      if(localAddress[-5:].find(".")==-1):
-        return open(localAddress, 'rb')
-      else:
-        return open(localAddress, 'r').read()
+      return open(localAddress, 'rb')
+      # if(localAddress[-5:].find(".")==-1):
+      #   return open(localAddress, 'rb')
+      # else:
+      #   return open(localAddress, 'r').read()
     if (key!=None):
       if (header!=None):
         return urllib.request.urlopen(url, header,key)
