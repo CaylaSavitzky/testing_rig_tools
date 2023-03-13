@@ -42,7 +42,8 @@ def getRelatedObject(obj,attr,dao,containerType=None,raiseException=False,agency
 			debug.print("looking for: {} {}".format(containerType,relatedObjId))
 			relatedObj = dao.getGtfsObject(containerType,relatedObjId)
 			if(relatedObj==None and raiseException):
-				raise Exception("{} {} {} claims to have associated {} {} {} but none could be found".format(
+				debug.regularPrint(vars(obj))
+				raise Exception("{} {} {} claims to have associated {} {} {} but none could be found.".format(
 					type(obj),obj,obj.getId().getValue(),
 					containerType,relatedObjId.getValue(),
 					str(relatedObjId.getAgency())+"---"+str(relatedObjId.getId())))
@@ -64,5 +65,8 @@ class debugPrinter():
 				print(stuffToPrint)
 			else:
 				print("".join(str(item) for item in stuffToPrint))
+	def regularPrint(self,stuffToPrint):
+		if self.should_print == True:
+			print(stuffToPrint)
 debug = debugPrinter()
 

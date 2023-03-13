@@ -46,6 +46,8 @@ class GtfsObjId:
 		return isinstance(obj,GtfsObjId) and obj.getAgency()==self.getAgency() and obj.getId()==self.getId()
 	def __hash__(self):
 		return ((self.getAgency() or "None").__hash__() + 31*(self.getId() or None).__hash__())
+	def __str__(self):
+		return "{}-{}".format(self.getValue(),self.__hash__())
 
 
 
@@ -53,6 +55,9 @@ class GtfsObjId:
 base for all other gtfs models
 '''
 class GtfsObject:
+	def __str__(self):
+		return "{} with id {} and hash {}".format(type(self),str(self.getId()),self.__hash__())
+
 	def getId(self):
 		return self.myId
 
@@ -70,11 +75,14 @@ class GtfsObject:
 			print("{} has these attr: {}".format(self,dir(self)))
 			raise Exception("cannot find id for {} itt: {} from list of options: {} ".format(
 				type(self),self.file_itt,self.possibleIds))
+		self.setId(GtfsObjId(GtfsObject.getAgencyFromAgencies(agencies),self.tmpId))
+
+	def getAgencyFromAgencies(agencies):
 		if(len(agencies)==1):
-			self.setId(GtfsObjId(list(agencies.values())[0],self.tmpId))
+			return list(agencies.values())[0]
 		elif(len(agencies)==0):
 			raise Exception("no agencies in gtfs")
-			setattr(self,key,self.tmpId)
+			# setattr(self,key,self.tmpId)
 		else:
 			raise Exception("multiple agencies in gtfs")
 		# print("loading agency: {}".format(self.getId().getAgency()))

@@ -14,7 +14,7 @@ def readTxtToDicts(folder,filename):
 	# turn first row plus row into an obj for stops
 	# dict(zip(a,b))
 	try:
-		return pandas.read_csv(folder+'/'+filename).to_dict(orient='records')
+		return pandas.read_csv(folder+'/'+filename,converters={'stop_id': str}).to_dict(orient='records')
 	except FileNotFoundError:
 		debug.print("could not read file: "+ folder+'/'+filename)
 		return None
@@ -45,14 +45,15 @@ class FlexReader():
 			itt += 1
 		return extractedData
 
-	def addData(data,clazz,agency,dao):
+	def addData(data,clazz,agencies,dao):
 		if(data==None):
 			return
 		# todo: check if a datum is a subgroup of another stop and vice versa?
 		itt = 0
 		for datum in data:
 			datum["file_itt"] = itt
-			datum = clazz(datum,agency,dao)
+			# print(datum)
+			datum = clazz(datum,agencies,dao)
 			debug.print("in flex reader: {}".format(datum.getId().getValue()))
 			if(datum in dao):
 				debug.print(dataHolder.get(datum.getId()).__dict__)
@@ -62,14 +63,15 @@ class FlexReader():
 			itt += 1
 
 
-	def processLocationGroups(data,agency,dao):
+	def processLocationGroups(data,agencies,dao):
 		if(data==None):
 			return
 		stops = dao.getStops()
 		for dataForStop in data:
-			stop = stops.get(str(dataForStop["location_group_id"]))
+			objid = GtfsObjId(GtfsObject.getAgencyFromAgencies(agencies),str(dataForStop["location_group_id"]))
+			stop = dao.getGtfsObject(Stop,objid)
 			if(stop==None):
-				stop = Stop(dataForStop,agency,dao)
+				stop = Stop(dataForStop,agencies,dao)
 				stops[stop.getId()] = stop
 			substopId = dataForStop['location_id']
 			if(substopId!=None):
@@ -77,12 +79,17 @@ class FlexReader():
 				if(substop==None):
 					raise Exception("location group ",stop.getId().getValue()," requires substop ",stop.location_id)
 				else:
+					debug.print("processing stop {} as part of location group {}".format(substop.getId().getValue(),stop.getId().getValue()))
 					# debug.print('adding substop ',substopId,' to stop ',stop.getId(), '<',stop,'>')
 					if(type(substop)!=Stop):
 						raise Exception("stop {}'s substop {} must be of type Stop".format(stop,substop))
-					stop.substops[substopId] = substop
+					debug.print("stop {} has these substops {}".format(stop, stop.substops))
+					stop.substops[substop.getId()] = substop
+					debug.print("stop {} has these substops {}".format(stop, stop.substops))
 					substop.parentStops[stop.getId()]=stop
-					# debug.print(stop.getId(),' has ', len(stop.substops), ' substops')
+					debug.print('{} has {} substops'.format(stop.getId().getValue(),len(stop.substops)))
+			else:
+				raise Exception("all location_groups must be have location_id")
 
 
 	def readFlexDirectoryIntoDao(folder,dao):

@@ -75,6 +75,7 @@ class DaoVisualizer:
 		self.m.save(output_folder)
 
 	def addStopsToSet(stop,stops : set, depth = 1):
+		debug.print("adding stop {} to stops".format(stop.getId().getValue()))
 		if(depth>50):
 			raise Exception("max stack depth exceeded searching for {}".format(stop.getId().getValue()))
 		if(stop.getType()==0):
@@ -82,7 +83,7 @@ class DaoVisualizer:
 		elif(stop.getType()==1):
 			for substopId in stop.substops:
 				substop = stop.substops[substopId]
-				debug.print("recursing to add substop {} from stop {}".format(substop,stop))
+				debug.print("recursing to add substop {} from stop {}".format(substop.getId().getValue(),stop.getId().getValue()))
 				DaoVisualizer.addStopsToSet(substop,stops,depth=depth+1)
 		else:
 			stops.add(stop)
