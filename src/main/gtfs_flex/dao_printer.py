@@ -35,7 +35,7 @@ def stringifyStopTimeOutput(st):
 	if(len(st.stop.substops)>0):
 		out += "<parent location:" + str(st.stop.getId().getId()) + "> and "
 		for substopId in st.stop.substops:
-			out += "<location:" + str(substopId.getValue()) + "> "
+			out += "<location:" + str(substopId) + "> "
 	else:
 		out += "<location:" + str(st.stop.getId().getId()) + ">"
 	if(hasattr(st,"start_pickup_drop_off_window")):

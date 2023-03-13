@@ -45,11 +45,11 @@ def processFilesIntoDao(args,dao):
 			# should be recursing here mayby?
 		data_path = path.split('.')[0]
 		unzip(path,data_path)
-		FlexReader.readFlexDirectoryIntoDao(data_path,dao)
-		# try:
-		# 	FlexReader.readFlexDirectoryIntoDao(data_path,dao)
-		# except Exception as e:
-		# 	print("error occured reading {}: {}".format(data_path,e))
+		# FlexReader.readFlexDirectoryIntoDao(data_path,dao)
+		try:
+			FlexReader.readFlexDirectoryIntoDao(data_path,dao)
+		except:
+			print("error occured reading {}".format(data_path))
 		shutil.rmtree(data_path)
 
 def updateOutputPath(outputPath):
