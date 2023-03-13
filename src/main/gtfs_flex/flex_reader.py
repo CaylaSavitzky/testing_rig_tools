@@ -14,7 +14,7 @@ def readTxtToDicts(folder,filename):
 	# turn first row plus row into an obj for stops
 	# dict(zip(a,b))
 	try:
-		return pandas.read_csv(folder+'/'+filename).to_dict(orient='records')
+		return pandas.read_csv(folder+'/'+filename,converters={'stop_id': str}).to_dict(orient='records')
 	except FileNotFoundError:
 		debug.print("could not read file: "+ folder+'/'+filename)
 		return None
