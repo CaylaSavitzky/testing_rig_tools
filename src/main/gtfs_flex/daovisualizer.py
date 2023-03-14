@@ -8,6 +8,7 @@ intended to only process the dao data into a form that is prep for the visualizi
 
 from visualize_geo import *
 from dao_printer import *
+from datetime import datetime;
 
 
 class DaoVisualizer:
@@ -35,7 +36,7 @@ class DaoVisualizer:
 
 			
 	def addMergedLegend(self,dao):
-		legendText = ""
+		legendText = '<span style="font-size:18px">Date created: {}</span> \n\n'.format(datetime.now().strftime("%m/%d/%Y"))
 		for agencyId in dao.getAgencies():
 			agency=dao.getGtfsObject(Agency,agencyId)
 			if(agency==None or dao.getTripsForAgency(agency)==None):
