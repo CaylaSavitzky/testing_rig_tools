@@ -26,7 +26,7 @@ def unzip(file,data_path):
 	with ZipFile(file, 'r') as zObject:
 		zObject.extractall(path=data_path)
 
-def processFilesIntoDao(args,dao):
+def processFilesIntoDao(args,dao,errorHandling):
 	while len(args)>0:
 		# print(sys.argv)
 		path = args.pop(0)
@@ -45,11 +45,13 @@ def processFilesIntoDao(args,dao):
 			# should be recursing here mayby?
 		data_path = path.split('.')[0]
 		unzip(path,data_path)
-		# FlexReader.readFlexDirectoryIntoDao(data_path,dao)
-		try:
+		if(not errorHandling):
 			FlexReader.readFlexDirectoryIntoDao(data_path,dao)
-		except:
-			print("error occured reading {}".format(data_path))
+		else:
+			try:
+				FlexReader.readFlexDirectoryIntoDao(data_path,dao)
+			except:
+				print("error occured reading {}".format(data_path))
 		shutil.rmtree(data_path)
 
 def updateOutputPath(outputPath):
@@ -65,6 +67,7 @@ def run(args,save_graph=True):
 
 	includeLegend = True
 	debug.should_print=False
+	errorHandling = True
 
 	arguments = list(filter(lambda arg: arg[0]=="-", sys.argv))
 
@@ -76,13 +79,17 @@ def run(args,save_graph=True):
 		print("hiding legend")
 		includeLegend=False
 
+	if("-noErrorHandling" in arguments or "-e" in arguments):
+		print("removing error handling")
+		errorHandling=False
+
 	args = list(filter(lambda arg: arg[0]!="-", sys.argv))
 	debug.print(args)
 
 	outputPath = args.pop()
 
 	dao = DaoImpl()
-	processFilesIntoDao(args,dao)
+	processFilesIntoDao(args,dao,errorHandling)
 
 	daoVisualizer = DaoVisualizer()
 	daoVisualizer.generateMapFromDao(dao,colors = colorlist,includeLegend=includeLegend)
