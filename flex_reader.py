@@ -67,9 +67,10 @@ class FlexReader():
 			return
 		stops = dao.getStops()
 		for dataForStop in data:
-			stop = stops.get(str(dataForStop["location_group_id"]))
+			stop = stops.get(GtfsObjId(list(agency.values())[0],str(dataForStop["location_group_id"])))
 			if(stop==None):
 				stop = Stop(dataForStop,agency,dao)
+				print(stop.getId())
 				stops[stop.getId()] = stop
 			substopId = dataForStop['location_id']
 			if(substopId!=None):
@@ -82,7 +83,8 @@ class FlexReader():
 						raise Exception("stop {}'s substop {} must be of type Stop".format(stop,substop))
 					stop.substops[substopId] = substop
 					substop.parentStops[stop.getId()]=stop
-					# debug.print(stop.getId(),' has ', len(stop.substops), ' substops')
+					print(stop.getId(),' has ', len(stop.substops), ' substops')
+		len(dao.getStops())
 
 
 	def readFlexDirectoryIntoDao(folder,dao):
